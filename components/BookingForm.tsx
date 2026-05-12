@@ -274,7 +274,7 @@ export default function BookingForm() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="Emerson Locke"
+                      placeholder="Your name"
                       style={{
                         ...inputStyle,
                         borderColor: focusedField === "name" ? focusBorder : normalBorder,
