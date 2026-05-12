@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Brand palette ──────────────────────────── */
+  --color-ink: #1a1008;
+  --color-leather: #2d1f0e;
+  --color-mahogany: #3d2314;
+  --color-parchment: #f5e6c8;
+  --color-cream: #faf3e0;
+  --color-aged: #e8d4b0;
+  --color-sepia: #c4a882;
+  --color-film-orange: #f4a261;
+  --color-warm-coral: #e76f51;
+  --color-vintage-gold: #d4a017;
+  --color-dark-amber: #92400e;
+
+  /* ─── Chapter theme colours ──────────────────── */
+  --color-teal-keys: #2a9d8f;
+  --color-coral-keys: #f4845f;
+  --color-sage-texas: #6b7c5c;
+  --color-earth-texas: #8b5e3c;
+
+  /* ─── Fonts ──────────────────────────────────── */
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-hand: var(--font-caveat), cursive;
+  --font-mono: var(--font-courier), "Courier New", monospace;
+}
+
+/* ─── Base reset ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-parchment);
+  font-family: var(--font-playfair, Georgia, serif);
+  overflow-x: hidden;
+}
+
+/* ─── Film grain overlay ─────────────────────────── */
+.film-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+}
+
+/* ─── Polaroid shell ─────────────────────────────── */
+.polaroid {
+  background: var(--color-cream);
+  padding: 10px 10px 36px;
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.45),
+    0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ─── Film sprocket hole ─────────────────────────── */
+.film-hole {
+  width: 11px;
+  height: 15px;
+  background: var(--color-ink);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-leather); }
+::-webkit-scrollbar-thumb { background: var(--color-sepia); border-radius: 3px; }
+
+/* ─── Selection ──────────────────────────────────── */
+::selection { background: var(--color-vintage-gold); color: var(--color-ink); }
+
+/* ─── Tape strip decoration ──────────────────────── */
+.tape {
+  width: 56px;
+  height: 18px;
+  background: rgba(245,230,200,0.45);
+  border-left: 1px solid rgba(245,230,200,0.2);
+  border-right: 1px solid rgba(245,230,200,0.2);
+}
+
+/* ─── Vignette ───────────────────────────────────── */
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(26,16,8,0.65) 100%);
+  border-radius: inherit;
+}
+
+/* ─── Smooth image fade-in ───────────────────────── */
+img { transition: opacity 0.35s ease; }
+
+/* ─── Title shimmer animation ────────────────────── */
+@keyframes title-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    105deg,
+    #f5e6c8 0%,
+    #f5e6c8 30%,
+    #fff8e8 40%,
+    #d4a017 46%,
+    #ffe9a0 50%,
+    #d4a017 54%,
+    #fff8e8 60%,
+    #f5e6c8 70%,
+    #f5e6c8 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: title-shimmer 5s linear infinite;
+}
+
+/* ─── Letter float animation ─────────────────────── */
+@keyframes letter-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-5px); }
+}
+
+.letter-float span {
+  display: inline-block;
+}
+.letter-float span:nth-child(1)  { animation: letter-float 4.0s ease-in-out infinite; animation-delay: 0.00s; }
+.letter-float span:nth-child(2)  { animation: letter-float 4.2s ease-in-out infinite; animation-delay: 0.08s; }
+.letter-float span:nth-child(3)  { animation: letter-float 3.8s ease-in-out infinite; animation-delay: 0.16s; }
+.letter-float span:nth-child(4)  { animation: letter-float 4.1s ease-in-out infinite; animation-delay: 0.24s; }
+.letter-float span:nth-child(5)  { animation: letter-float 3.9s ease-in-out infinite; animation-delay: 0.32s; }
+.letter-float span:nth-child(6)  { animation: letter-float 4.3s ease-in-out infinite; animation-delay: 0.40s; }
+.letter-float span:nth-child(7)  { animation: letter-float 4.0s ease-in-out infinite; animation-delay: 0.48s; }
+.letter-float span:nth-child(8)  { animation: letter-float 3.7s ease-in-out infinite; animation-delay: 0.56s; }
+.letter-float span:nth-child(9)  { animation: letter-float 4.2s ease-in-out infinite; animation-delay: 0.64s; }
+.letter-float span:nth-child(10) { animation: letter-float 3.9s ease-in-out infinite; animation-delay: 0.72s; }
+.letter-float span:nth-child(11) { animation: letter-float 4.1s ease-in-out infinite; animation-delay: 0.80s; }
+.letter-float span:nth-child(12) { animation: letter-float 4.4s ease-in-out infinite; animation-delay: 0.88s; }
