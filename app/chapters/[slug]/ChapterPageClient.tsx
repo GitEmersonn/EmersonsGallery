@@ -915,8 +915,58 @@ const GLASS_TOWERS: [number, number, number][] = [
 
 function GlassSkyline() {
   const H = 180;
+  const [lit, setLit] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Build list of flickering window keys with their initial states
+    const windows: { key: string; initial: boolean }[] = [];
+    GLASS_TOWERS.forEach(([, w, h], ti) => {
+      const cols = Math.max(2, Math.floor(w / 10));
+      const rows = Math.floor((h - 10) / 13);
+      Array.from({ length: rows }).forEach((_, row) => {
+        Array.from({ length: cols }).forEach((_, col) => {
+          const winIdx = ti * 7 + row * cols + col;
+          if ((winIdx * 3 + ti * 5) % 10 < 3) {
+            windows.push({ key: `${ti}-${row}-${col}`, initial: GLASS_WIN_LIT[winIdx % GLASS_WIN_LIT.length] });
+          }
+        });
+      });
+    });
+
+    // Initialise state
+    const init: Record<string, boolean> = {};
+    windows.forEach(({ key, initial }) => { init[key] = initial; });
+    setLit(init);
+
+    // Each window toggles on its own random interval
+    const timers = windows.map(({ key }) => {
+      let t: ReturnType<typeof setTimeout>;
+      const schedule = () => {
+        t = setTimeout(() => {
+          setLit(prev => ({ ...prev, [key]: !prev[key] }));
+          schedule();
+        }, 4000 + Math.floor(Math.random() * 10000));
+      };
+      // Stagger start so they don't all fire together
+      const startDelay = setTimeout(schedule, Math.floor(Math.random() * 6000));
+      return () => { clearTimeout(t); clearTimeout(startDelay); };
+    });
+
+    return () => timers.forEach(cancel => cancel());
+  }, []);
+
   return (
     <svg width="364" height={H} viewBox={`0 0 364 ${H}`} fill="none">
+      <defs>
+        <filter id="win-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       {GLASS_TOWERS.map(([x, w, h], ti) => {
         const y = H - h;
         const cols = Math.max(2, Math.floor(w / 10));
@@ -924,22 +974,23 @@ function GlassSkyline() {
         const colW = (w - 6) / cols;
         return (
           <g key={ti}>
-            {/* Tower body */}
             <rect x={x} y={y} width={w} height={h} fill="#38bdf8" opacity="0.14" />
-            {/* Setback top */}
             <rect x={x + 4} y={y - 8} width={w - 8} height={10} fill="#38bdf8" opacity="0.17" />
             <rect x={x + 8} y={y - 15} width={w - 16} height={9} fill="#38bdf8" opacity="0.2" />
-            {/* Window grid */}
             {Array.from({ length: rows }).map((_, row) =>
               Array.from({ length: cols }).map((_, col) => {
-                const idx = ((ti * 7 + row * cols + col)) % GLASS_WIN_LIT.length;
-                const lit = GLASS_WIN_LIT[idx];
+                const winIdx = ti * 7 + row * cols + col;
+                const idx = winIdx % GLASS_WIN_LIT.length;
+                const flickerKey = `${ti}-${row}-${col}`;
+                const flickers = (winIdx * 3 + ti * 5) % 10 < 3;
+                const isLit = flickers ? (lit[flickerKey] ?? GLASS_WIN_LIT[idx]) : GLASS_WIN_LIT[idx];
                 return (
-                  <rect key={`${row}-${col}`}
+                  <rect key={flickerKey}
                     x={x + 3 + col * colW} y={y + 5 + row * 13}
                     width={colW - 2} height={10}
-                    fill={lit ? "#facc15" : "#38bdf8"}
-                    opacity={lit ? 0.55 : 0.28}
+                    fill={isLit ? "#facc15" : "#38bdf8"}
+                    opacity={isLit ? 0.6 : 0.28}
+                    filter={isLit ? "url(#win-glow)" : undefined}
                   />
                 );
               })
@@ -947,11 +998,9 @@ function GlassSkyline() {
           </g>
         );
       })}
-      {/* Antenna on tallest tower */}
       <line x1="188" y1="8" x2="188" y2="0" stroke="#38bdf8" strokeWidth="1.5" opacity="0.55" />
       <motion.circle cx="188" cy="0" r="2" fill="#facc15"
         animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }} />
-      {/* Street line */}
       <line x1="0" y1={H - 1} x2="364" y2={H - 1} stroke="#38bdf8" strokeWidth="1" opacity="0.2" />
     </svg>
   );
