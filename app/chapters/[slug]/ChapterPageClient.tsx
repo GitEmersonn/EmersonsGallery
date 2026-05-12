@@ -1529,14 +1529,26 @@ export default function ChapterPageClient({ chapter }: Props) {
         >
           <div className="absolute inset-0 overflow-hidden">
             {chapter.coverVideo ? (
-              <video
-                src={chapter.coverVideo}
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              <>
+                {/* Cover photo shows while video loads */}
+                <Image
+                  src={chapter.coverPhoto.src}
+                  alt={chapter.coverPhoto.alt}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority
+                />
+                <video
+                  src={chapter.coverVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </>
             ) : (
               <Image
                 src={chapter.coverPhoto.src}

@@ -59,7 +59,7 @@ export const chapters: Chapter[] = [
       height: 6000,
       orientation: "portrait",
     },
-    coverVideo: "https://res.cloudinary.com/dfw5pobin/video/upload/v1778538488/Post_Wedding_walk_around_B_roll_o7xcbq.mp4",
+    coverVideo: "https://res.cloudinary.com/dfw5pobin/video/upload/v1778555068/B_roll_wedding_fj2teu.mp4",
     photos: [
       {
         id: "kw-1",
