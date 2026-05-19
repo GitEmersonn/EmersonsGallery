@@ -39,6 +39,20 @@ export default function PhotoLightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [handlePrev, handleNext, onClose]);
 
+  useEffect(() => {
+    let lastScroll = 0;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastScroll < 300) return; // throttle
+      lastScroll = now;
+      if (e.deltaY > 0) handleNext();
+      else handlePrev();
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [handlePrev, handleNext]);
+
   // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";

@@ -9,6 +9,8 @@ import type { Chapter } from "@/data/chapters";
 interface ChapterCardProps {
   chapter: Chapter;
   index: number;
+  onHover?: () => void;
+  onLeave?: () => void;
 }
 
 const CARD_ROTATIONS = [-4, 3, -2, 5, -3];
@@ -50,7 +52,7 @@ function RanchDecor() {
   );
 }
 
-export default function ChapterCard({ chapter, index }: ChapterCardProps) {
+export default function ChapterCard({ chapter, index, onHover, onLeave }: ChapterCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   // 3D tilt effect
@@ -89,6 +91,8 @@ export default function ChapterCard({ chapter, index }: ChapterCardProps) {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onHoverStart={onHover}
+      onHoverEnd={onLeave}
     >
       <Link href={`/chapters/${chapter.slug}`}>
         {/* Tape decoration */}

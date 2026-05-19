@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   motion,
+  AnimatePresence,
   useScroll,
   useTransform,
   useMotionValue,
@@ -10,9 +11,10 @@ import {
   useInView,
   useAnimationControls,
 } from "framer-motion";
+import Image from "next/image";
 import { chapters } from "@/data/chapters";
+import type { Chapter } from "@/data/chapters";
 import ChapterCard from "@/components/ChapterCard";
-import ContactForm from "@/components/ContactForm";
 import BookingForm from "@/components/BookingForm";
 
 // ─── Deterministic "random" — same on SSR and client ─────────────────────────
@@ -317,6 +319,16 @@ const equipment = [
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
+  const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+
+  useEffect(() => {
+    const visited = sessionStorage.getItem("eg-intro");
+    if (!visited) {
+      sessionStorage.setItem("eg-intro", "1");
+      setIsFirstVisit(true);
+    }
+  }, []);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, -70]);
   const heroOpacity = useTransform(scrollY, [0, 380], [1, 0]);
@@ -342,12 +354,42 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-ink overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ position: "relative" }}>
+      {/* ─── ANIMATED GRADIENT BACKGROUND ─────────────── */}
+      <div className="page-bg-gradient fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
+      {/* ─── CHAPTER HOVER BACKGROUND ─────────────────── */}
+      <AnimatePresence>
+        {bgChapter && (
+          <motion.div
+            key={bgChapter.id}
+            className="fixed inset-0 pointer-events-none"
+            style={{ zIndex: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            <Image
+              src={bgChapter.coverPhoto.src}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+              style={{ opacity: 0.18 }}
+            />
+            {/* Radial mask — fades hard at all edges */}
+            <div className="absolute inset-0" style={{
+              background: "radial-gradient(ellipse 75% 70% at 50% 50%, transparent 25%, rgba(13,8,2,0.5) 55%, rgba(13,8,2,0.88) 72%, #0d0802 100%)",
+            }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ─── HERO ────────────────────────────────────── */}
       <motion.section
         ref={heroRef}
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
-        style={{ y: heroY }}
+        style={{ y: heroY, zIndex: 1 }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -356,9 +398,36 @@ export default function HomePage() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 130% 90% at 50% 65%, #2d1f0e 0%, #1a1008 55%, #0d0804 100%)",
+              "radial-gradient(ellipse 130% 90% at 50% 65%, rgba(45,31,14,0.85) 0%, rgba(26,16,8,0.8) 55%, rgba(13,8,4,0.7) 100%)",
           }}
         />
+
+        {/* ── First-visit: dark veil that lifts to reveal the hero ── */}
+        {isFirstVisit && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "#06040100", zIndex: 8 }}
+            initial={{ opacity: 1, backgroundColor: "#060300" }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 1.8, delay: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          />
+        )}
+
+        {/* ── First-visit: gold scan line sweeps top → bottom ── */}
+        {isFirstVisit && (
+          <motion.div
+            className="absolute left-0 right-0 pointer-events-none"
+            style={{
+              height: 1,
+              zIndex: 9,
+              background: "linear-gradient(to right, transparent 0%, rgba(212,160,23,0.06) 10%, rgba(212,160,23,0.55) 50%, rgba(212,160,23,0.06) 90%, transparent 100%)",
+              boxShadow: "0 0 18px 4px rgba(212,160,23,0.18)",
+            }}
+            initial={{ top: "0%", opacity: 0 }}
+            animate={{ top: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
+            transition={{ duration: 1.4, delay: 0.3, ease: "linear", times: [0, 0.05, 0.9, 1] }}
+          />
+        )}
 
         {/* ── Bokeh particles ── */}
         <BokehBackground />
@@ -394,7 +463,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.05, ease: [0.25, 0, 0, 1] }}
+            transition={{ duration: 0.7, delay: isFirstVisit ? 1.2 : 0.1, ease: [0.25, 0, 0, 1] }}
             style={{ marginBottom: 32 }}
           >
             <ApertureLogo
@@ -409,7 +478,7 @@ export default function HomePage() {
             style={{ fontFamily: "var(--font-courier)", color: "#d4a017", opacity: 0.6 }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 0.6, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.25 }}
+            transition={{ duration: 0.7, delay: isFirstVisit ? 1.6 : 0.2 }}
           >
             A Visual Journal
           </motion.p>
@@ -418,7 +487,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.25, 0, 0, 1] }}
+            transition={{ duration: 1, delay: isFirstVisit ? 2.0 : 0.25, ease: [0.25, 0, 0, 1] }}
           >
             <ShimmerTitle
               text="Emerson's"
@@ -447,7 +516,7 @@ export default function HomePage() {
             style={{ fontFamily: "var(--font-caveat)", color: "#c4a882", fontSize: 22 }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.55 }}
+            transition={{ duration: 0.7, delay: isFirstVisit ? 2.7 : 0.35 }}
           >
             Capturing your vision with our lens est. 2025
           </motion.p>
@@ -457,7 +526,7 @@ export default function HomePage() {
             className="mt-10 flex items-center gap-4"
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.7, delay: 0.75 }}
+            transition={{ duration: 0.7, delay: isFirstVisit ? 3.1 : 0.45 }}
           >
             <div
               className="h-px w-20"
@@ -475,7 +544,7 @@ export default function HomePage() {
             className="mt-16 flex flex-col items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.3, duration: 0.6 }}
+            transition={{ delay: isFirstVisit ? 3.6 : 0.7, duration: 0.6 }}
           >
             <p
               style={{
@@ -508,7 +577,14 @@ export default function HomePage() {
       </motion.section>
 
       {/* ─── CHAPTERS ──────────────────────────────────── */}
-      <section className="relative py-24 md:py-32">
+      <motion.section
+        className="relative py-24 md:py-32"
+        style={{ zIndex: 1 }}
+        initial={{ opacity: 0, y: 48 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.08 }}
+        transition={{ duration: 0.8, ease: [0.25, 0, 0, 1] }}
+      >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -557,11 +633,30 @@ export default function HomePage() {
             <GoldDivider />
           </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-10 md:gap-20 py-8">
+          <motion.div
+            className="flex flex-wrap justify-center gap-10 md:gap-20 py-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
+          >
             {chapters.map((chapter, i) => (
-              <ChapterCard key={chapter.id} chapter={chapter} index={i} />
+              <motion.div
+                key={chapter.id}
+                variants={{
+                  hidden: { opacity: 0, y: 40, scale: 0.96 },
+                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.25, 0, 0, 1] } },
+                }}
+              >
+                <ChapterCard
+                  chapter={chapter}
+                  index={i}
+                  onHover={() => setBgChapter(chapter)}
+                  onLeave={() => setBgChapter(null)}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <motion.div
             className="mt-20 text-center"
@@ -603,15 +698,33 @@ export default function HomePage() {
             </p>
           </motion.div>
         </div>
-      </section>
+
+        {/* Bottom gradient fade into next section */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{
+          height: 120,
+          background: "linear-gradient(to bottom, transparent, rgba(10,8,4,0.9))",
+          zIndex: 2,
+        }} />
+      </motion.section>
 
       {/* ─── EQUIPMENT ─────────────────────────────────── */}
-      <section
+      <motion.section
         className="relative py-24 md:py-32"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.06 }}
+        transition={{ duration: 0.75, ease: [0.25, 0, 0, 1] }}
         style={{
-          background: "linear-gradient(to bottom, #1a1008 0%, #221508 40%, #1a1008 100%)",
+          zIndex: 1,
+          background: "linear-gradient(to bottom, rgba(26,16,8,0.65) 0%, rgba(34,21,8,0.7) 40%, rgba(26,16,8,0.65) 100%)",
         }}
       >
+        {/* Top gradient fade from previous section */}
+        <div className="absolute top-0 left-0 right-0 pointer-events-none" style={{
+          height: 100,
+          background: "linear-gradient(to bottom, rgba(10,8,4,0.85), transparent)",
+          zIndex: 2,
+        }} />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -769,18 +882,27 @@ export default function HomePage() {
               "linear-gradient(to right, transparent 0%, rgba(212,160,23,0.2) 40%, rgba(212,160,23,0.35) 50%, rgba(212,160,23,0.2) 60%, transparent 100%)",
           }}
         />
-      </section>
+      </motion.section>
 
       {/* ─── BOOKING ───────────────────────────────────── */}
-      <BookingForm />
-
-      {/* ─── CONTACT ───────────────────────────────────── */}
-      <ContactForm />
+      <motion.div
+        initial={{ opacity: 0, y: 48 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.08 }}
+        transition={{ duration: 0.8, ease: [0.25, 0, 0, 1] }}
+        style={{ position: "relative", zIndex: 1 }}
+      >
+        <BookingForm />
+      </motion.div>
 
       {/* ─── FOOTER ────────────────────────────────────── */}
-      <footer
+      <motion.footer
         className="relative py-10 px-6 flex flex-col items-center gap-4 text-center border-t"
-        style={{ borderColor: "rgba(196,168,130,0.1)" }}
+        style={{ borderColor: "rgba(196,168,130,0.1)", zIndex: 1 }}
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: [0.25, 0, 0, 1] }}
       >
         <ApertureLogo
           size={28}
@@ -802,7 +924,7 @@ export default function HomePage() {
         >
           All images © their respective sessions
         </p>
-      </footer>
+      </motion.footer>
     </div>
   );
 }

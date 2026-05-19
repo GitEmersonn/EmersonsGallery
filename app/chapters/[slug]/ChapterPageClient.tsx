@@ -1543,9 +1543,12 @@ export default function ChapterPageClient({ chapter }: Props) {
     : "linear-gradient(to bottom, rgba(18,8,2,0.35) 0%, rgba(18,8,2,0.1) 35%, rgba(18,8,2,0.82) 78%, rgba(18,8,2,1) 100%)";
 
   return (
-    <div
+    <motion.div
       className="min-h-screen relative overflow-x-hidden"
       style={{ backgroundColor: pageBg }}
+      initial={{ opacity: 0, scale: 0.995 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.55, ease: [0.25, 0, 0, 1] }}
     >
       {/* Fixed ambient glow */}
       <div
@@ -2027,6 +2030,6 @@ export default function ChapterPageClient({ chapter }: Props) {
           RETURN TO THE ALBUM
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }

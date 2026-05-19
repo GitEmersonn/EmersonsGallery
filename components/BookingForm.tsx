@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Mode = "build" | "custom";
+type Mode = "build" | "custom" | "contact";
 type Status = "idle" | "sending" | "success" | "error";
 
 const CHIP_SERVICE = ["Photography", "Videography", "Photography + Video"];
@@ -88,6 +88,7 @@ export default function BookingForm() {
   const [duration, setDuration] = useState("");
   const [comments, setComments] = useState("");
   const [customMsg, setCustomMsg] = useState("");
+  const [contactMsg, setContactMsg] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
@@ -110,6 +111,8 @@ export default function BookingForm() {
           ]
             .filter(Boolean)
             .join("\n")
+        : mode === "contact"
+        ? `GENERAL ENQUIRY\n\n${contactMsg}`
         : customMsg;
 
     try {
@@ -131,7 +134,7 @@ export default function BookingForm() {
     <section
       className="relative py-24 md:py-32"
       style={{
-        background: "linear-gradient(to bottom, #1a1008 0%, #160d04 50%, #1a1008 100%)",
+        background: "linear-gradient(to bottom, rgba(26,16,8,0.75) 0%, rgba(22,13,4,0.8) 50%, rgba(26,16,8,0.75) 100%)",
       }}
     >
       {/* Top rule */}
@@ -188,7 +191,7 @@ export default function BookingForm() {
                 letterSpacing: "0.18em",
               }}
             >
-              STARTING AT $199
+              STARTING AT $50
             </span>
           </div>
         </motion.div>
@@ -239,23 +242,26 @@ export default function BookingForm() {
                   className="flex mb-8 rounded overflow-hidden"
                   style={{ border: "1px solid rgba(196,168,130,0.15)" }}
                 >
-                  {(["build", "custom"] as Mode[]).map((m) => (
+                  {([
+                    { key: "build",   label: "BUILD MY SESSION" },
+                    { key: "contact", label: "CONTACT" },
+                  ] as { key: Mode; label: string }[]).map(({ key, label }) => (
                     <button
-                      key={m}
+                      key={key}
                       type="button"
-                      onClick={() => setMode(m)}
+                      onClick={() => setMode(key)}
                       className="flex-1 py-2.5 text-xs tracking-widest transition-all duration-200"
                       style={{
                         fontFamily: "var(--font-mono)",
-                        background: mode === m ? "rgba(212,160,23,0.12)" : "transparent",
-                        color: mode === m ? "#d4a017" : "#c4a882",
-                        opacity: mode === m ? 1 : 0.5,
+                        background: mode === key ? "rgba(212,160,23,0.12)" : "transparent",
+                        color: mode === key ? "#d4a017" : "#c4a882",
+                        opacity: mode === key ? 1 : 0.5,
                         border: "none",
                         cursor: "pointer",
                         letterSpacing: "0.18em",
                       }}
                     >
-                      {m === "build" ? "BUILD MY SESSION" : "WRITE YOUR OWN"}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -367,7 +373,7 @@ export default function BookingForm() {
                         />
                       </div>
                     </motion.div>
-                  ) : (
+                  ) : mode === "custom" ? (
                     <motion.div
                       key="custom"
                       initial={{ opacity: 0, y: 10 }}
@@ -394,6 +400,36 @@ export default function BookingForm() {
                           borderColor: focusedField === "custom" ? focusBorder : normalBorder,
                         }}
                         onFocus={() => setFocusedField("custom")}
+                        onBlur={() => setFocusedField(null)}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="contact"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="mb-6"
+                    >
+                      <label
+                        className="block mb-2 text-xs tracking-[0.22em] uppercase"
+                        style={{ fontFamily: "var(--font-mono)", color: "#d4a017", opacity: 0.6 }}
+                      >
+                        Message
+                      </label>
+                      <textarea
+                        rows={6}
+                        value={contactMsg}
+                        onChange={(e) => setContactMsg(e.target.value)}
+                        required
+                        placeholder="Say hello, ask a question, or just reach out…"
+                        style={{
+                          ...inputStyle,
+                          resize: "none",
+                          borderColor: focusedField === "contact" ? focusBorder : normalBorder,
+                        }}
+                        onFocus={() => setFocusedField("contact")}
                         onBlur={() => setFocusedField(null)}
                       />
                     </motion.div>

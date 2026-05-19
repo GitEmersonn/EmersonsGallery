@@ -127,6 +127,28 @@ img { transition: opacity 0.35s ease; }
   animation: title-shimmer 5s linear infinite;
 }
 
+/* ─── Page background gradient shift ────────────────── */
+@keyframes bg-gradient-shift {
+  0%   { background-position: 50% 0%; }
+  50%  { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+.page-bg-gradient {
+  background: linear-gradient(
+    to bottom,
+    #1c0d03,
+    #04090e,
+    #100803,
+    #040a0e,
+    #1c0d03,
+    #04090e,
+    #100803
+  );
+  background-size: 100% 300%;
+  animation: bg-gradient-shift 18s ease-in-out infinite;
+}
+
 /* ─── Letter float animation ─────────────────────── */
 @keyframes letter-float {
   0%, 100% { transform: translateY(0px); }
