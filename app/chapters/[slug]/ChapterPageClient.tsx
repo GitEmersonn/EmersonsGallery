@@ -36,34 +36,48 @@ function CursorRepulsor({
   const springRotate = useSpring(rawRotate, { stiffness: 260, damping: 18, mass: 0.7 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const radius = Math.max(rect.width, rect.height) * 1.4;
+    let rafId: number | null = null;
+    let pendingX = 0, pendingY = 0, pendingMX = 0, pendingMY = 0;
 
-      if (dist < radius && dist > 0) {
-        const speed = Math.sqrt(e.movementX * e.movementX + e.movementY * e.movementY);
-        const normalizedSpeed = Math.min(speed / 12, 1);
-        const proximity = 1 - dist / radius;
-        const force = proximity * (0.3 + normalizedSpeed * 0.7);
-        rawX.set((-dx / dist) * maxPush * force);
-        rawY.set((-dy / dist) * maxPush * force);
-        rawRotate.set(Math.sign(e.movementX) * maxRotation * force);
-      } else {
-        rawX.set(0);
-        rawY.set(0);
-        rawRotate.set(0);
-      }
+    const handleMouseMove = (e: MouseEvent) => {
+      pendingX = e.clientX;
+      pendingY = e.clientY;
+      pendingMX = e.movementX;
+      pendingMY = e.movementY;
+      if (rafId !== null) return; // already scheduled, skip
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const el = ref.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = pendingX - cx;
+        const dy = pendingY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const radius = Math.max(rect.width, rect.height) * 1.4;
+
+        if (dist < radius && dist > 0) {
+          const speed = Math.sqrt(pendingMX * pendingMX + pendingMY * pendingMY);
+          const normalizedSpeed = Math.min(speed / 12, 1);
+          const proximity = 1 - dist / radius;
+          const force = proximity * (0.3 + normalizedSpeed * 0.7);
+          rawX.set((-dx / dist) * maxPush * force);
+          rawY.set((-dy / dist) * maxPush * force);
+          rawRotate.set(Math.sign(pendingMX) * maxRotation * force);
+        } else {
+          rawX.set(0);
+          rawY.set(0);
+          rawRotate.set(0);
+        }
+      });
     };
 
     document.addEventListener("mousemove", handleMouseMove);
-    return () => document.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, [rawX, rawY, rawRotate, maxPush, maxRotation]);
 
   return (

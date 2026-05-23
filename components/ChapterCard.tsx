@@ -88,7 +88,7 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
         zIndex: 20,
         transition: { type: "spring", stiffness: 240, damping: 22 },
       }}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800 }}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800, willChange: "transform" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onHoverStart={onHover}

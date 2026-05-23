@@ -23,7 +23,7 @@ function sr(seed: number) {
   return x - Math.floor(x);
 }
 
-const BOKEH = Array.from({ length: 11 }, (_, i) => ({
+const BOKEH = Array.from({ length: 7 }, (_, i) => ({
   id: i,
   x: sr(i * 3) * 100,
   y: sr(i * 3 + 1) * 110 - 10,
@@ -55,7 +55,7 @@ function BokehBackground() {
             width: p.size,
             height: p.size,
             background: `radial-gradient(circle, rgba(${p.color},0.8) 0%, transparent 68%)`,
-            filter: "blur(28px)",
+            filter: "blur(18px)",
             willChange: "transform, opacity",
           }}
           animate={{

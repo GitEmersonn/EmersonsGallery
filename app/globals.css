@@ -128,13 +128,24 @@ img { transition: opacity 0.35s ease; }
 }
 
 /* ─── Page background gradient shift ────────────────── */
+/* Uses transform (GPU-composited) instead of background-position (causes repaint) */
 @keyframes bg-gradient-shift {
-  0%   { background-position: 50% 0%; }
-  50%  { background-position: 50% 100%; }
-  100% { background-position: 50% 0%; }
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-33.33%); }
+  100% { transform: translateY(0); }
 }
 
 .page-bg-gradient {
+  overflow: hidden;
+}
+
+.page-bg-gradient::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 300%;
   background: linear-gradient(
     to bottom,
     #1c0d03,
@@ -145,8 +156,8 @@ img { transition: opacity 0.35s ease; }
     #04090e,
     #100803
   );
-  background-size: 100% 300%;
   animation: bg-gradient-shift 18s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* ─── Letter float animation ─────────────────────── */
