@@ -574,16 +574,26 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
         </motion.div>
+
+        {/* Smooth bottom fade — dissolves hero into the page background */}
+        <div
+          className="absolute bottom-0 left-0 right-0 pointer-events-none"
+          style={{
+            height: 280,
+            background: "linear-gradient(to bottom, transparent 0%, rgba(13,8,2,0.55) 45%, rgba(10,6,1,0.88) 75%, #0a0601 100%)",
+            zIndex: 6,
+          }}
+        />
       </motion.section>
 
       {/* ─── CHAPTERS ──────────────────────────────────── */}
       <motion.section
         className="relative py-24 md:py-32"
         style={{ zIndex: 1 }}
-        initial={{ opacity: 0, y: 48 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.8, ease: [0.25, 0, 0, 1] }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.05 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
