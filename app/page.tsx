@@ -16,6 +16,7 @@ import { chapters } from "@/data/chapters";
 import type { Chapter } from "@/data/chapters";
 import ChapterCard from "@/components/ChapterCard";
 import BookingForm from "@/components/BookingForm";
+import { usePerfMode } from "@/hooks/usePerfMode";
 
 // ─── Deterministic "random" — same on SSR and client ─────────────────────────
 function sr(seed: number) {
@@ -259,7 +260,13 @@ const equipment = [
     type: "Digital DSLR",
     badge: "DIGITAL",
     badgeColor: "#c4a030",
-    lenses: ["55–250mm f/4 telephoto zoom", "15–55mm f/6.5 kit lens"],
+    lenses: [
+      "55–250mm f/4 telephoto zoom",
+      "15–55mm f/6.5 kit lens",
+      "Canon 50mm f/1.8 prime",
+      "Canon 50mm macro",
+      "Sigma 150–600mm telephoto",
+    ],
     icon: (
       <svg viewBox="0 0 100 70" fill="none">
         <rect x="8" y="22" width="84" height="42" rx="5" fill="currentColor" opacity="0.9" />
@@ -318,6 +325,7 @@ const equipment = [
 
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const lite = usePerfMode();
   const heroRef = useRef<HTMLElement>(null);
   const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
@@ -342,6 +350,7 @@ export default function HomePage() {
   const glowTop = useTransform(glowY, [-0.5, 0.5], ["20%", "80%"]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (lite) return;
     const rect = heroRef.current?.getBoundingClientRect();
     if (!rect) return;
     mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
@@ -430,23 +439,25 @@ export default function HomePage() {
         )}
 
         {/* ── Bokeh particles ── */}
-        <BokehBackground />
+        {!lite && <BokehBackground />}
 
-        {/* Cursor-following warm glow */}
-        <motion.div
-          className="absolute pointer-events-none"
-          style={{
-            left: glowLeft,
-            top: glowTop,
-            width: 380,
-            height: 380,
-            x: "-50%",
-            y: "-50%",
-            background:
-              "radial-gradient(circle, rgba(212,160,23,0.08) 0%, transparent 65%)",
-            filter: "blur(40px)",
-          }}
-        />
+        {/* Cursor-following warm glow — skipped on low-end / touch devices */}
+        {!lite && (
+          <motion.div
+            className="absolute pointer-events-none"
+            style={{
+              left: glowLeft,
+              top: glowTop,
+              width: 380,
+              height: 380,
+              x: "-50%",
+              y: "-50%",
+              background:
+                "radial-gradient(circle, rgba(212,160,23,0.08) 0%, transparent 65%)",
+              filter: "blur(40px)",
+            }}
+          />
+        )}
 
         {/* Gold corner brackets */}
         <div className="absolute top-2 left-2 w-14 h-14 pointer-events-none" style={{ borderTop: "1px solid rgba(212,160,23,0.22)", borderLeft: "1px solid rgba(212,160,23,0.22)" }} />

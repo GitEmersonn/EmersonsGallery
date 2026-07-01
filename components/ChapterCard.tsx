@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { Chapter } from "@/data/chapters";
+import { usePerfMode } from "@/hooks/usePerfMode";
 
 interface ChapterCardProps {
   chapter: Chapter;
@@ -53,6 +54,7 @@ function RanchDecor() {
 }
 
 export default function ChapterCard({ chapter, index, onHover, onLeave }: ChapterCardProps) {
+  const lite = usePerfMode();
   const cardRef = useRef<HTMLDivElement>(null);
 
   // 3D tilt effect
@@ -64,6 +66,7 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
   const baseRot = CARD_ROTATIONS[index % CARD_ROTATIONS.length];
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (lite) return;
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
@@ -74,6 +77,11 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
     mouseX.set(0);
     mouseY.set(0);
   };
+
+  // Lite mode: drop the 3D-tilt springs and permanent layer promotion.
+  const tiltStyle = lite
+    ? undefined
+    : { rotateX, rotateY, transformStyle: "preserve-3d" as const, perspective: 800, willChange: "transform" as const };
 
   return (
     <motion.div
@@ -88,7 +96,7 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
         zIndex: 20,
         transition: { type: "spring", stiffness: 240, damping: 22 },
       }}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800, willChange: "transform" }}
+      style={tiltStyle}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onHoverStart={onHover}

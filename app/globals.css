@@ -181,3 +181,20 @@ img { transition: opacity 0.35s ease; }
 .letter-float span:nth-child(10) { animation: letter-float 3.9s ease-in-out infinite; animation-delay: 0.72s; }
 .letter-float span:nth-child(11) { animation: letter-float 4.1s ease-in-out infinite; animation-delay: 0.80s; }
 .letter-float span:nth-child(12) { animation: letter-float 4.4s ease-in-out infinite; animation-delay: 0.88s; }
+
+/* ─── Reduced-motion: honor OS setting, stop all looping CSS animations ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .page-bg-gradient::before,
+  .shimmer-text,
+  .letter-float span {
+    animation: none !important;
+  }
+}

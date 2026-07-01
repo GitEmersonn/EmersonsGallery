@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useMotionValue, useSpring } from "framer-motion";
 import type { Chapter } from "@/data/chapters";
 import { chapters as allChapters } from "@/data/chapters";
 import PhotoGrid from "@/components/PhotoGrid";
+import { usePerfMode } from "@/hooks/usePerfMode";
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
 const CARD_ROTS = [-3.5, 2.8, -2, 4, -3];
+
+// When true, skip cursor-tracking springs & heavy decorative animation.
+const PerfContext = createContext(false);
 
 // ─── Cursor repulsor — wraps any decorative element; cursor pushes it away ────
 
@@ -27,6 +31,7 @@ function CursorRepulsor({
   className?: string;
   style?: React.CSSProperties;
 }) {
+  const lite = useContext(PerfContext);
   const ref = useRef<HTMLDivElement>(null);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
@@ -36,6 +41,7 @@ function CursorRepulsor({
   const springRotate = useSpring(rawRotate, { stiffness: 260, damping: 18, mass: 0.7 });
 
   useEffect(() => {
+    if (lite) return; // no cursor-tracking on low-end / touch devices
     let rafId: number | null = null;
     let pendingX = 0, pendingY = 0, pendingMX = 0, pendingMY = 0;
 
@@ -78,7 +84,16 @@ function CursorRepulsor({
       document.removeEventListener("mousemove", handleMouseMove);
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, [rawX, rawY, rawRotate, maxPush, maxRotation]);
+  }, [rawX, rawY, rawRotate, maxPush, maxRotation, lite]);
+
+  // Lite mode: render a plain wrapper — no springs, no listener.
+  if (lite) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -152,7 +167,7 @@ function KWHibiscus({
         fill="none"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.45 }}
+        viewport={{ once: true, amount: 0.45 }}
         variants={{
           hidden: { transition: { staggerChildren: 0.055, staggerDirection: -1 } },
           visible: { transition: { staggerChildren: 0.055 } },
@@ -241,7 +256,7 @@ function KWShell({ className = "" }: { className?: string }) {
         width="36" height="36" viewBox="0 0 50 50" fill="none"
         initial={{ scale: 0.1, rotate: -220, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 160, damping: 14 }}
         style={{ transformOrigin: "25px 25px" }}
       >
@@ -263,7 +278,7 @@ function KeyWestHeroDecor() {
         className="absolute bottom-0 right-0"
         initial={{ opacity: 0, y: 55 }}
         whileInView={{ opacity: 0.45, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div
@@ -280,7 +295,7 @@ function KeyWestHeroDecor() {
         className="absolute bottom-0 left-4"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 0.28, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.48, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div
@@ -297,7 +312,7 @@ function KeyWestHeroDecor() {
         className="absolute top-16 right-1/3"
         initial={{ opacity: 0, x: 40 }}
         whileInView={{ opacity: 0.4, x: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.6, ease: [0.25, 0, 0, 1] }}
       >
         <motion.svg
@@ -319,7 +334,7 @@ function KeyWestHeroDecor() {
         className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.85, delay: 0.15, ease: [0.25, 0, 0, 1] }}
       >
         <KWWaves className="w-full" />
@@ -384,7 +399,7 @@ function TXHorseshoe({
         style={{ width: "100%", height: "100%" }}
         initial={{ y: -38, rotate: 25, opacity: 0, scale: 0.6 }}
         whileInView={{ y: 0, rotate: 0, opacity: 1, scale: 1 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 260, damping: 13 }}
       >
         <path d="M15 80 L15 45 Q15 10 40 10 Q65 10 65 45 L65 80"
@@ -453,7 +468,7 @@ function TXLoneStar({
         viewBox="0 0 60 60" width={size} height={size} fill="none"
         initial={{ scale: 0, rotate: 160, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 200, damping: 14 }}
         style={{ transformOrigin: "30px 30px" }}
       >
@@ -506,7 +521,7 @@ function WhartonHeroDecor() {
         className="absolute bottom-0 right-8"
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 0.40, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.95, delay: 0.32, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div
@@ -523,7 +538,7 @@ function WhartonHeroDecor() {
         className="absolute bottom-0 left-6"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 0.25, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.95, delay: 0.46, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div
@@ -540,7 +555,7 @@ function WhartonHeroDecor() {
         className="absolute top-14 right-12"
         initial={{ opacity: 0, y: -24, rotate: -12 }}
         whileInView={{ opacity: 0.20, y: 0, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.65 }}
       >
         <motion.div
@@ -556,7 +571,7 @@ function WhartonHeroDecor() {
         className="absolute bottom-0 left-0 right-0 w-full"
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 0.28, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.75, delay: 0.2, ease: [0.25, 0, 0, 1] }}
       >
         <svg height="70" viewBox="0 0 800 70" fill="none" style={{ width: "100%" }}>
@@ -573,7 +588,7 @@ function WhartonHeroDecor() {
         className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.14 }}
       >
         <TXRollingPlains className="w-full" />
@@ -652,7 +667,7 @@ function NightChampagne({
         fill="none"
         initial={{ scale: 0, opacity: 0, rotate: -12 }}
         whileInView={{ scale: 1, opacity: 1, rotate: 0 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
         style={{ transformOrigin: "25px 90px" }}
       >
@@ -719,7 +734,7 @@ function NightSparkle({
         fill="none"
         initial={{ scale: 0, rotate: -90, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 250, damping: 14 }}
         style={{ transformOrigin: "20px 20px" }}
       >
@@ -741,7 +756,7 @@ function NightMoon({ className = "" }: { className?: string }) {
         width="54" height="54" viewBox="0 0 54 54" fill="none"
         initial={{ scale: 0.4, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.2, ease: [0.25, 0, 0, 1], delay: 0.4 }}
         style={{ transformOrigin: "27px 27px" }}
       >
@@ -773,7 +788,7 @@ function NightCityHeroDecor() {
         className="absolute top-12 right-16"
         initial={{ opacity: 0, scale: 0.6 }}
         whileInView={{ opacity: 0.7, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0, 0, 1] }}
       >
         <NightMoon />
@@ -787,7 +802,7 @@ function NightCityHeroDecor() {
           style={{ right, top }}
           initial={{ opacity: 0, scale: 0 }}
           whileInView={{ opacity: 0.45 + (i % 3) * 0.12, scale: 1 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.55, delay: 0.28 + i * 0.1 }}
         >
           <NightSparkle size={size} color={color} />
@@ -799,7 +814,7 @@ function NightCityHeroDecor() {
         className="absolute bottom-16 left-8"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 0.55, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.55, ease: [0.25, 0, 0, 1] }}
       >
         <NightChampagne size={44} />
@@ -810,7 +825,7 @@ function NightCityHeroDecor() {
         className="absolute bottom-20 right-10"
         initial={{ opacity: 0, y: 25 }}
         whileInView={{ opacity: 0.38, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.7, ease: [0.25, 0, 0, 1] }}
       >
         <NightChampagne size={30} />
@@ -821,7 +836,7 @@ function NightCityHeroDecor() {
         className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.1, ease: [0.25, 0, 0, 1] }}
       >
         <NightCitySkyline className="w-full" />
@@ -1027,7 +1042,7 @@ function HoustonSkylineHeroDecor() {
       <motion.div className="absolute top-8 right-12"
         initial={{ opacity: 0, scale: 0.4 }}
         whileInView={{ opacity: 0.88, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1, delay: 0.25, ease: [0.25, 0, 0, 1] }}
       >
         <CityGlare size={76} />
@@ -1037,7 +1052,7 @@ function HoustonSkylineHeroDecor() {
       <motion.div className="absolute bottom-20 left-8"
         initial={{ opacity: 0, x: -80 }}
         whileInView={{ opacity: 0.78, x: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.85, delay: 0.55, ease: [0.25, 0, 0, 1] }}
       >
         <CityTaxi size={96} />
@@ -1047,7 +1062,7 @@ function HoustonSkylineHeroDecor() {
       <motion.div className="absolute bottom-24 right-16"
         initial={{ opacity: 0, x: 60 }}
         whileInView={{ opacity: 0.42, x: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.85, delay: 0.72, ease: [0.25, 0, 0, 1] }}
       >
         <CityTaxi size={62} />
@@ -1057,7 +1072,7 @@ function HoustonSkylineHeroDecor() {
       <motion.div className="absolute bottom-0 left-1/2 -translate-x-1/2"
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 0.7, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.12, ease: [0.25, 0, 0, 1] }}
       >
         <GlassSkyline />
@@ -1160,7 +1175,7 @@ function CoastalSunset({ size = 100 }: { size?: number }) {
     <motion.svg width={size} height={size} viewBox="0 0 100 100" fill="none"
       initial={{ scale: 0.4, opacity: 0 }}
       whileInView={{ scale: 1, opacity: 1 }}
-      viewport={{ once: false, amount: 0.01 }}
+      viewport={{ once: true, amount: 0.01 }}
       transition={{ duration: 1.1, ease: [0.25, 0, 0, 1], delay: 0.2 }}
       style={{ transformOrigin: "50px 50px" }}
     >
@@ -1216,7 +1231,7 @@ function CoastalKite({ className = "" }: { className?: string }) {
       <motion.svg width="44" height="54" viewBox="0 0 44 54" fill="none"
         initial={{ scale: 0, rotate: 20, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.4 }}
       >
         <path d="M22 2 L40 22 L22 38 L4 22 Z" fill="#F4845F" opacity="0.72" />
@@ -1240,7 +1255,7 @@ function CoastalShell({ className = "" }: { className?: string }) {
       <motion.svg width="36" height="44" viewBox="0 0 50 58" fill="none"
         initial={{ scale: 0.1, rotate: -200, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ type: "spring", stiffness: 160, damping: 14 }}
         style={{ transformOrigin: "25px 30px" }}
       >
@@ -1266,7 +1281,7 @@ function CoastalHeart({ size = 28, className = "", delay = 0 }: { size?: number;
       <motion.svg width={size} height={size} viewBox="0 0 28 26" fill="none"
         initial={{ scale: 0, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: false, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ type: "spring", stiffness: 220, damping: 14 }}
         style={{ transformOrigin: "14px 13px" }}
       >
@@ -1304,7 +1319,7 @@ function CoastalHeroDecor() {
       <motion.div className="absolute top-8 right-12"
         initial={{ opacity: 0, scale: 0.5 }}
         whileInView={{ opacity: 0.75, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.15, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalSunset size={120} />
@@ -1314,7 +1329,7 @@ function CoastalHeroDecor() {
       <motion.div className="absolute top-20 left-10"
         initial={{ opacity: 0, y: -22 }}
         whileInView={{ opacity: 0.6, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.42, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalKite />
@@ -1325,7 +1340,7 @@ function CoastalHeroDecor() {
         <motion.div key={i} className={cls}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 0.45 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.6, delay: 0.5 + d * 0.13 }}
         >
           <CoastalGull delay={d} />
@@ -1337,7 +1352,7 @@ function CoastalHeroDecor() {
         <motion.div key={i} className={cls}
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 0.45, y: 0 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.7, delay: 0.52 + i * 0.18 }}
         >
           <CoastalHeart size={sz as number} delay={d as number} />
@@ -1348,7 +1363,7 @@ function CoastalHeroDecor() {
       <motion.div className="absolute bottom-24 left-14"
         initial={{ opacity: 0, rotate: -25 }}
         whileInView={{ opacity: 0.52, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.8, delay: 0.62, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalShell />
@@ -1356,7 +1371,7 @@ function CoastalHeroDecor() {
       <motion.div className="absolute bottom-20 right-12"
         initial={{ opacity: 0, rotate: 25 }}
         whileInView={{ opacity: 0.4, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.8, delay: 0.78, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalShell />
@@ -1366,7 +1381,7 @@ function CoastalHeroDecor() {
       <motion.div className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.1, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalSandWave className="w-full" />
@@ -1386,7 +1401,7 @@ function RomanticCarnation({ size = 60, delay = 0 }: { size?: number; delay?: nu
     >
       <motion.svg viewBox="0 0 60 60" width={size} height={size} fill="none"
         initial="hidden" whileInView="visible"
-        viewport={{ once: false, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.4 }}
         variants={{
           hidden: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
           visible: { transition: { staggerChildren: 0.04 } },
@@ -1434,7 +1449,7 @@ function RomanticHeroDecor() {
       <motion.div className="absolute top-10 right-10"
         initial={{ opacity: 0, scale: 0.4, rotate: -15 }}
         whileInView={{ opacity: 0.52, scale: 1, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.25, ease: [0.25, 0, 0, 1] }}
       >
         <RomanticCarnation size={72} delay={0} />
@@ -1442,7 +1457,7 @@ function RomanticHeroDecor() {
       <motion.div className="absolute top-28 left-8"
         initial={{ opacity: 0, scale: 0.3, rotate: 12 }}
         whileInView={{ opacity: 0.35, scale: 1, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.45, ease: [0.25, 0, 0, 1] }}
       >
         <RomanticCarnation size={44} delay={1.5} />
@@ -1451,7 +1466,7 @@ function RomanticHeroDecor() {
         <motion.div key={i} className={cls}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.6, delay: 0.5 + i * 0.1 }}
         >
           <RomanticPetal delay={d} />
@@ -1472,7 +1487,7 @@ function FrontierSun({ size = 88 }: { size?: number }) {
       <motion.svg width={size} height={size} viewBox="0 0 88 88" fill="none"
         initial={{ scale: 0.5, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, ease: [0.25, 0, 0, 1], delay: 0.3 }}
         style={{ transformOrigin: "44px 44px" }}
       >
@@ -1513,7 +1528,7 @@ function FrontierHeroDecor() {
       <motion.div className="absolute top-14 right-14"
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 0.62, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0, 0, 1] }}
       >
         <FrontierSun size={90} />
@@ -1521,7 +1536,7 @@ function FrontierHeroDecor() {
       <motion.div className="absolute top-10 left-10"
         initial={{ opacity: 0, scale: 0, rotate: 80 }}
         whileInView={{ opacity: 0.32, scale: 1, rotate: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.8, delay: 0.55, ease: [0.25, 0, 0, 1] }}
       >
         <TXLoneStar size={28} />
@@ -1529,7 +1544,7 @@ function FrontierHeroDecor() {
       <motion.div className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.1, ease: [0.25, 0, 0, 1] }}
       >
         <FrontierHorizon className="w-full" />
@@ -1545,7 +1560,7 @@ function WildLeaf({ className = "", style }: { className?: string; style?: React
     <motion.svg className={className} style={style} viewBox="0 0 80 120" fill="none"
       initial={{ scale: 0.2, rotate: -28, opacity: 0 }}
       whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ type: "spring", stiffness: 180, damping: 14 }}
     >
       <path d="M40 110 C40 80 20 60 15 35 C10 15 30 5 40 10 C50 5 70 15 65 35 C60 60 40 80 40 110Z"
@@ -1568,7 +1583,7 @@ function WildPawPrint({ size = 60 }: { size?: number }) {
     <motion.div style={{ width: size, height: size }}
       initial={{ scale: 0, opacity: 0 }}
       whileInView={{ scale: 1, opacity: 1 }}
-      viewport={{ once: false, amount: 0.4 }}
+      viewport={{ once: true, amount: 0.4 }}
       transition={{ type: "spring", stiffness: 220, damping: 14, delay: 0.2 }}
     >
       <motion.svg width={size} height={size} viewBox="0 0 60 64" fill="none"
@@ -1639,7 +1654,7 @@ function WildHeroDecor() {
       <motion.div className="absolute bottom-0 right-0"
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 0.5, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.18, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
@@ -1653,7 +1668,7 @@ function WildHeroDecor() {
       <motion.div className="absolute bottom-0 left-0"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 0.35, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.36, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [1.2, -1.2, 1.2] }}
@@ -1667,7 +1682,7 @@ function WildHeroDecor() {
       <motion.div className="absolute top-0 left-8"
         initial={{ opacity: 0, y: -30 }}
         whileInView={{ opacity: 0.6, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.5, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [-2, 2, -2] }}
@@ -1679,7 +1694,7 @@ function WildHeroDecor() {
       <motion.div className="absolute top-0 left-28"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 0.38, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.62, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
@@ -1693,7 +1708,7 @@ function WildHeroDecor() {
       <motion.div className="absolute top-0 right-14"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 0.45, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.65, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [2, -2, 2] }}
@@ -1705,7 +1720,7 @@ function WildHeroDecor() {
       <motion.div className="absolute top-0 right-36"
         initial={{ opacity: 0, y: -25 }}
         whileInView={{ opacity: 0.3, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.78, ease: [0.25, 0, 0, 1] }}
       >
         <motion.div animate={{ rotate: [1, -1, 1] }}
@@ -1727,7 +1742,7 @@ function WildHeroDecor() {
         <motion.div key={i} className={cls}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: op * 0.55 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.7, delay: 0.55 + d * 0.12 }}
         >
           <WildBird delay={d} />
@@ -1738,7 +1753,7 @@ function WildHeroDecor() {
       <motion.div className="absolute top-14 right-24"
         initial={{ opacity: 0, scale: 0 }}
         whileInView={{ opacity: 0.48, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.7, delay: 0.72, ease: [0.25, 0, 0, 1] }}
       >
         <WildPawPrint size={52} />
@@ -1759,7 +1774,7 @@ function StudioAperture({ size = 80 }: { size?: number }) {
       <motion.svg width={size} height={size} viewBox="0 0 80 80" fill="none"
         initial={{ scale: 0, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, ease: [0.25, 0, 0, 1], delay: 0.25 }}
         style={{ transformOrigin: "40px 40px" }}
       >
@@ -1803,7 +1818,7 @@ function StudioHeroDecor() {
       <motion.div className="absolute top-10 right-12"
         initial={{ opacity: 0, scale: 0.4 }}
         whileInView={{ opacity: 0.55, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.2, ease: [0.25, 0, 0, 1] }}
       >
         <StudioAperture size={84} />
@@ -1811,7 +1826,7 @@ function StudioHeroDecor() {
       <motion.div className="absolute top-0 left-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.2, delay: 0.4 }}
       >
         <StudioLightRay />
@@ -1819,7 +1834,7 @@ function StudioHeroDecor() {
       <motion.div className="absolute top-0 right-28"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.2, delay: 0.65 }}
       >
         <StudioLightRay style={{ transform: "scaleX(-1)" }} />
@@ -1828,7 +1843,7 @@ function StudioHeroDecor() {
         <motion.div key={i} className={`absolute ${cls}`}
           initial={{ opacity: 0, scale: 0 }}
           whileInView={{ opacity: 0.28, scale: 1 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.6, delay: 0.55 + i * 0.12 }}
         >
           <svg width={sz} height={sz} viewBox="0 0 20 20" fill="none">
@@ -1852,7 +1867,7 @@ function DallasStar({ size = 70, className = "" }: { size?: number; className?: 
       <motion.svg viewBox="0 0 70 70" width={size} height={size} fill="none"
         initial={{ scale: 0, rotate: -160, opacity: 0 }}
         whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: false, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ type: "spring", stiffness: 160, damping: 14 }}
         style={{ transformOrigin: "35px 35px" }}
       >
@@ -1881,7 +1896,7 @@ function WesternSpur({ size = 90, className = "" }: { size?: number; className?:
       <motion.svg viewBox="0 0 100 58" width={size} height={h} fill="none"
         initial={{ scale: 0.4, opacity: 0, x: 20 }}
         whileInView={{ scale: 1, opacity: 1, x: 0 }}
-        viewport={{ once: false, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ type: "spring", stiffness: 180, damping: 15 }}
       >
         {/* Heel band */}
@@ -1931,7 +1946,7 @@ function DallasHeroDecor() {
       <motion.div className="absolute top-10 right-12"
         initial={{ opacity: 0, scale: 0.4 }}
         whileInView={{ opacity: 0.7, scale: 1 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.2, ease: [0.25, 0, 0, 1] }}
       >
         <DallasStar size={84} />
@@ -1941,7 +1956,7 @@ function DallasHeroDecor() {
       <motion.div className="absolute bottom-16 left-8"
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 0.55, x: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.45, ease: [0.25, 0, 0, 1] }}
       >
         <WesternSpur size={95} />
@@ -1951,7 +1966,7 @@ function DallasHeroDecor() {
       <motion.div className="absolute bottom-8 right-8"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 0.42, y: 0 }}
-        viewport={{ once: false, amount: 0.01 }}
+        viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.9, delay: 0.6, ease: [0.25, 0, 0, 1] }}
       >
         <DallasCowboyHat style={{ width: 80, height: 50 }} />
@@ -1962,7 +1977,7 @@ function DallasHeroDecor() {
         <motion.div key={i} className="absolute" style={{ right, top }}
           initial={{ opacity: 0, scale: 0 }}
           whileInView={{ opacity: 0.28 + i * 0.06, scale: 1 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 0.5, delay: 0.32 + i * 0.12 }}
         >
           <DallasStar size={sz} />
@@ -2354,7 +2369,7 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
         {/* Hanging vines from top of floor block */}
         <motion.div className="absolute top-0 left-8"
           initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 0.58, y: 0 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.2, ease: [0.25, 0, 0, 1] }}
         >
           <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
@@ -2365,7 +2380,7 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
         </motion.div>
         <motion.div className="absolute top-0 left-28"
           initial={{ opacity: 0, y: -14 }} whileInView={{ opacity: 0.36, y: 0 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.38, ease: [0.25, 0, 0, 1] }}
         >
           <motion.div animate={{ rotate: [-1, 1, -1] }}
@@ -2376,7 +2391,7 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
         </motion.div>
         <motion.div className="absolute top-0 right-12"
           initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 0.5, y: 0 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0, 0, 1] }}
         >
           <motion.div animate={{ rotate: [1.5, -1.5, 1.5] }}
@@ -2387,7 +2402,7 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
         </motion.div>
         <motion.div className="absolute top-0 right-36"
           initial={{ opacity: 0, y: -12 }} whileInView={{ opacity: 0.3, y: 0 }}
-          viewport={{ once: false, amount: 0.01 }}
+          viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.5, ease: [0.25, 0, 0, 1] }}
         >
           <motion.div animate={{ rotate: [1, -1, 1] }}
@@ -2572,7 +2587,7 @@ function MoreChaptersSection({
           className="mb-10 text-center"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.5 }}
         >
           <p
@@ -2597,7 +2612,7 @@ function MoreChaptersSection({
                 className="relative cursor-pointer"
                 initial={{ opacity: 0, y: 30, rotate: rot }}
                 whileInView={{ opacity: 1, y: 0, rotate: rot }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ delay: i * 0.1, duration: 0.55, ease: [0.25, 0, 0, 1] }}
                 whileHover={{
                   rotate: 0,
@@ -2672,6 +2687,8 @@ interface Props {
 
 export default function ChapterPageClient({ chapter }: Props) {
 
+  const lite = usePerfMode();
+
   const isKeyWest = chapter.theme.decorative === "tropical";
   const isTexas = chapter.theme.decorative === "ranch";
   const isNightlife = chapter.theme.decorative === "nightlife";
@@ -2702,6 +2719,7 @@ export default function ChapterPageClient({ chapter }: Props) {
   } = tc;
 
   return (
+    <PerfContext.Provider value={lite}>
     <motion.div
       className="min-h-screen relative overflow-x-hidden"
       style={{ backgroundColor: pageBg }}
@@ -2770,16 +2788,17 @@ export default function ChapterPageClient({ chapter }: Props) {
             />
           </div>
 
-          {isKeyWest && <KeyWestHeroDecor />}
-          {isTexas && <WhartonHeroDecor />}
-          {isWestern && <DallasHeroDecor />}
-          {isNightlife && <NightCityHeroDecor />}
-          {isSkyline && <HoustonSkylineHeroDecor />}
-          {isCoastal && <CoastalHeroDecor />}
-          {isRomantic && <RomanticHeroDecor />}
-          {isFrontier && <FrontierHeroDecor />}
-          {isWild && <WildHeroDecor />}
-          {isStudio && <StudioHeroDecor />}
+          {/* Heavy animated hero decor — skipped in lite mode for low-end/touch devices */}
+          {!lite && isKeyWest && <KeyWestHeroDecor />}
+          {!lite && isTexas && <WhartonHeroDecor />}
+          {!lite && isWestern && <DallasHeroDecor />}
+          {!lite && isNightlife && <NightCityHeroDecor />}
+          {!lite && isSkyline && <HoustonSkylineHeroDecor />}
+          {!lite && isCoastal && <CoastalHeroDecor />}
+          {!lite && isRomantic && <RomanticHeroDecor />}
+          {!lite && isFrontier && <FrontierHeroDecor />}
+          {!lite && isWild && <WildHeroDecor />}
+          {!lite && isStudio && <StudioHeroDecor />}
 
           {/* Back button */}
           <motion.div
@@ -2896,7 +2915,7 @@ export default function ChapterPageClient({ chapter }: Props) {
         style={{ background: descBg }}
       >
         {/* Chapter-specific corner accents — each component owns its reveal + idle */}
-        {isKeyWest && (
+        {!lite && isKeyWest && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={30} maxRotation={28}>
@@ -2915,7 +2934,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isTexas && (
+        {!lite && isTexas && (
           <>
             <div className="absolute top-6 left-8" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={38} maxRotation={32}>
@@ -2929,7 +2948,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isNightlife && (
+        {!lite && isNightlife && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.32 }}>
               <CursorRepulsor maxPush={36} maxRotation={32}>
@@ -2948,7 +2967,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isSkyline && (
+        {!lite && isSkyline && (
           <>
             <div className="absolute top-6 left-5" style={{ opacity: 0.62 }}>
               <CursorRepulsor maxPush={34} maxRotation={20}>
@@ -2967,7 +2986,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isWestern && (
+        {!lite && isWestern && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.28 }}>
               <CursorRepulsor maxPush={38} maxRotation={28}>
@@ -2981,7 +3000,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isCoastal && (
+        {!lite && isCoastal && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.35 }}>
               <CursorRepulsor maxPush={32} maxRotation={24}>
@@ -3000,7 +3019,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isRomantic && (
+        {!lite && isRomantic && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.28 }}>
               <CursorRepulsor maxPush={34} maxRotation={28}>
@@ -3014,7 +3033,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isFrontier && (
+        {!lite && isFrontier && (
           <>
             <div className="absolute top-6 left-8" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={38} maxRotation={32}>
@@ -3023,7 +3042,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isWild && (
+        {!lite && isWild && (
           <>
             <div className="absolute top-8 left-6" style={{ opacity: 0.32 }}>
               <CursorRepulsor maxPush={30} maxRotation={22}>
@@ -3037,7 +3056,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {isStudio && (
+        {!lite && isStudio && (
           <>
             <div className="absolute top-6 right-8" style={{ opacity: 0.38 }}>
               <CursorRepulsor maxPush={28} maxRotation={16}>
@@ -3050,7 +3069,7 @@ export default function ChapterPageClient({ chapter }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-center gap-5 mb-8">
@@ -3059,14 +3078,14 @@ export default function ChapterPageClient({ chapter }: Props) {
               style={{ backgroundColor: accentColor }}
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: false, amount: 0.4 }}
+              viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             />
             {isKeyWest ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.4, rotate: -20 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <KWHibiscus size={26} opacity={0.85} />
@@ -3075,7 +3094,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3, rotate: -90 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <NightSparkle size={26} color="#a855f7" />
@@ -3084,7 +3103,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3, x: -20 }}
                 whileInView={{ opacity: 1, scale: 1, x: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <CityGlare size={28} />
@@ -3093,7 +3112,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ type: "spring", stiffness: 220, damping: 14, delay: 0.2 }}
               >
                 <CoastalHeart size={26} />
@@ -3102,7 +3121,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3, rotate: -20 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <RomanticCarnation size={26} />
@@ -3111,7 +3130,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2 }}
               >
                 <WildPawPrint size={26} />
@@ -3120,7 +3139,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2 }}
               >
                 <StudioAperture size={26} />
@@ -3129,7 +3148,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3, rotate: -160 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.2 }}
               >
                 <DallasStar size={28} />
@@ -3138,7 +3157,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.3, rotate: 90 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: false, amount: 0.4 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <TXLoneStar size={26} />
@@ -3149,7 +3168,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               style={{ backgroundColor: accentColor }}
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: false, amount: 0.4 }}
+              viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             />
           </div>
@@ -3183,7 +3202,7 @@ export default function ChapterPageClient({ chapter }: Props) {
                   }}
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 0.85, y: 0 }}
-                  viewport={{ once: false, amount: 0.4 }}
+                  viewport={{ once: true, amount: 0.4 }}
                   transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
                 >
                   {tag.toUpperCase()}
@@ -3214,7 +3233,7 @@ export default function ChapterPageClient({ chapter }: Props) {
           className="relative z-10 text-center py-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: false, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.5 }}
         >
           <div className="flex items-center justify-center gap-4">
@@ -3294,5 +3313,6 @@ export default function ChapterPageClient({ chapter }: Props) {
         </div>
       </div>
     </motion.div>
+    </PerfContext.Provider>
   );
 }
