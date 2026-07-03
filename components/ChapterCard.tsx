@@ -1,11 +1,9 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { Chapter } from "@/data/chapters";
-import { usePerfMode } from "@/hooks/usePerfMode";
 
 interface ChapterCardProps {
   chapter: Chapter;
@@ -54,38 +52,10 @@ function RanchDecor() {
 }
 
 export default function ChapterCard({ chapter, index, onHover, onLeave }: ChapterCardProps) {
-  const lite = usePerfMode();
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // 3D tilt effect
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [6, -6]), { stiffness: 200, damping: 20 });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), { stiffness: 200, damping: 20 });
-
   const baseRot = CARD_ROTATIONS[index % CARD_ROTATIONS.length];
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (lite) return;
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
-  // Lite mode: drop the 3D-tilt springs and permanent layer promotion.
-  const tiltStyle = lite
-    ? undefined
-    : { rotateX, rotateY, transformStyle: "preserve-3d" as const, perspective: 800, willChange: "transform" as const };
 
   return (
     <motion.div
-      ref={cardRef}
       className="relative cursor-pointer"
       initial={{ opacity: 0, y: 50, rotate: baseRot }}
       whileInView={{ opacity: 1, y: 0, rotate: baseRot }}
@@ -96,9 +66,6 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
         zIndex: 20,
         transition: { type: "spring", stiffness: 240, damping: 22 },
       }}
-      style={tiltStyle}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       onHoverStart={onHover}
       onHoverEnd={onLeave}
     >
@@ -122,8 +89,8 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
             />
             {/* Chapter theme tint overlay */}
             <div
-              className="absolute inset-0 opacity-20 mix-blend-multiply"
-              style={{ backgroundColor: chapter.theme.primaryColor }}
+              className="absolute inset-0"
+              style={{ backgroundColor: chapter.theme.primaryColor, opacity: 0.14 }}
             />
             {/* Decorative element */}
             {chapter.theme.decorative === "tropical" && <TropicalDecor />}
@@ -152,15 +119,14 @@ export default function ChapterCard({ chapter, index, onHover, onLeave }: Chapte
           </div>
         </div>
 
-        {/* Glow on hover */}
+        {/* Glow on hover — soft gradient, no blur filter */}
         <motion.div
           className="absolute inset-0 pointer-events-none rounded-sm"
           initial={{ opacity: 0 }}
           whileHover={{ opacity: 1 }}
           style={{
-            background: `radial-gradient(ellipse at center, ${chapter.theme.primaryColor}22 0%, transparent 70%)`,
-            filter: "blur(16px)",
-            transform: "scale(1.1) translateZ(-1px)",
+            background: `radial-gradient(ellipse at center, ${chapter.theme.primaryColor}20 0%, transparent 72%)`,
+            transform: "scale(1.12)",
           }}
         />
       </Link>

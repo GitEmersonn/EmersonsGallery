@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, useScroll, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import type { Chapter } from "@/data/chapters";
 import { chapters as allChapters } from "@/data/chapters";
 import PhotoGrid from "@/components/PhotoGrid";
@@ -13,15 +13,12 @@ import { usePerfMode } from "@/hooks/usePerfMode";
 
 const CARD_ROTS = [-3.5, 2.8, -2, 4, -3];
 
-// When true, skip cursor-tracking springs & heavy decorative animation.
-const PerfContext = createContext(false);
-
-// ─── Cursor repulsor — wraps any decorative element; cursor pushes it away ────
+// ─── Static decorative wrapper ────────────────────────────────────────────────
+// Formerly a cursor-tracking "repulsor" — removed for performance. Kept as a
+// thin wrapper so existing call sites (and their props) stay valid.
 
 function CursorRepulsor({
   children,
-  maxPush = 22,
-  maxRotation = 18,
   className = "",
   style,
 }: {
@@ -31,78 +28,10 @@ function CursorRepulsor({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const lite = useContext(PerfContext);
-  const ref = useRef<HTMLDivElement>(null);
-  const rawX = useMotionValue(0);
-  const rawY = useMotionValue(0);
-  const rawRotate = useMotionValue(0);
-  const springX = useSpring(rawX, { stiffness: 280, damping: 16, mass: 0.7 });
-  const springY = useSpring(rawY, { stiffness: 280, damping: 16, mass: 0.7 });
-  const springRotate = useSpring(rawRotate, { stiffness: 260, damping: 18, mass: 0.7 });
-
-  useEffect(() => {
-    if (lite) return; // no cursor-tracking on low-end / touch devices
-    let rafId: number | null = null;
-    let pendingX = 0, pendingY = 0, pendingMX = 0, pendingMY = 0;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      pendingX = e.clientX;
-      pendingY = e.clientY;
-      pendingMX = e.movementX;
-      pendingMY = e.movementY;
-      if (rafId !== null) return; // already scheduled, skip
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        const el = ref.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dx = pendingX - cx;
-        const dy = pendingY - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const radius = Math.max(rect.width, rect.height) * 1.4;
-
-        if (dist < radius && dist > 0) {
-          const speed = Math.sqrt(pendingMX * pendingMX + pendingMY * pendingMY);
-          const normalizedSpeed = Math.min(speed / 12, 1);
-          const proximity = 1 - dist / radius;
-          const force = proximity * (0.3 + normalizedSpeed * 0.7);
-          rawX.set((-dx / dist) * maxPush * force);
-          rawY.set((-dy / dist) * maxPush * force);
-          rawRotate.set(Math.sign(pendingMX) * maxRotation * force);
-        } else {
-          rawX.set(0);
-          rawY.set(0);
-          rawRotate.set(0);
-        }
-      });
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, [rawX, rawY, rawRotate, maxPush, maxRotation, lite]);
-
-  // Lite mode: render a plain wrapper — no springs, no listener.
-  if (lite) {
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
-  }
-
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      style={{ ...style, x: springX, y: springY, rotate: springRotate }}
-    >
+    <div className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -152,14 +81,8 @@ function KWHibiscus({
 }) {
   const PETALS = [0, 72, 144, 216, 288];
   return (
-    // Outer: gentle idle sway — like a flower in a coastal breeze
-    <motion.div
-      className={className}
-      style={{ width: size, height: size }}
-      animate={{ rotate: [0, 14, 0, -14, 0] }}
-      transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-    >
-      {/* Inner SVG: petals bloom staggered on viewport enter, close on exit */}
+    <div className={className} style={{ width: size, height: size }}>
+      {/* Inner SVG: petals bloom staggered on viewport enter */}
       <motion.svg
         viewBox="0 0 80 80"
         width={size}
@@ -206,7 +129,7 @@ function KWHibiscus({
         />
         <line x1="40" y1="31" x2="40" y2="22" stroke="#fcd34d" strokeWidth="1.5" opacity="0.7" />
       </motion.svg>
-    </motion.div>
+    </div>
   );
 }
 
@@ -273,7 +196,7 @@ function KWShell({ className = "" }: { className?: string }) {
 function KeyWestHeroDecor() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Right palm — grows up from ground, then sways */}
+      {/* Right palm — grows up from ground */}
       <motion.div
         className="absolute bottom-0 right-0"
         initial={{ opacity: 0, y: 55 }}
@@ -281,16 +204,10 @@ function KeyWestHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div
-          animate={{ rotate: [-2.5, 2.5, -2.5] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ transformOrigin: "50% 100%" }}
-        >
-          <KWPalmTree style={{ width: 90, height: 220 }} />
-        </motion.div>
+        <KWPalmTree style={{ width: 90, height: 220 }} />
       </motion.div>
 
-      {/* Left palm — slightly later, sways opposite phase */}
+      {/* Left palm */}
       <motion.div
         className="absolute bottom-0 left-4"
         initial={{ opacity: 0, y: 40 }}
@@ -298,16 +215,10 @@ function KeyWestHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.48, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div
-          animate={{ rotate: [1.5, -1.5, 1.5] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          style={{ transformOrigin: "50% 100%" }}
-        >
-          <KWPalmTree style={{ width: 60, height: 150, transform: "scaleX(-1)" }} />
-        </motion.div>
+        <KWPalmTree style={{ width: 60, height: 150, transform: "scaleX(-1)" }} />
       </motion.div>
 
-      {/* Seagulls — glide in from right, then drift on thermals */}
+      {/* Seagulls — glide in from right */}
       <motion.div
         className="absolute top-16 right-1/3"
         initial={{ opacity: 0, x: 40 }}
@@ -315,18 +226,14 @@ function KeyWestHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.6, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.svg
-          width="120" height="30" viewBox="0 0 120 30" fill="none"
-          animate={{ y: [0, -14, 0], x: [0, 10, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <svg width="120" height="30" viewBox="0 0 120 30" fill="none">
           {([[14,15],[45,8],[78,18],[104,7]] as [number,number][]).map(([cx, cy], i) => (
             <path key={i}
               d={`M${cx-10} ${cy} Q${cx-5} ${cy-5} ${cx} ${cy} Q${cx+5} ${cy-5} ${cx+10} ${cy}`}
               stroke="#2dd4bf" strokeWidth="1.5" fill="none" opacity="0.55"
             />
           ))}
-        </motion.svg>
+        </svg>
       </motion.div>
 
       {/* Waves — roll in from bottom */}
@@ -524,13 +431,7 @@ function WhartonHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.95, delay: 0.32, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div
-          animate={{ rotate: [-1.5, 1.5, -1.5] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          style={{ transformOrigin: "50% 100%" }}
-        >
-          <TXCactus style={{ width: 55, height: 130 }} />
-        </motion.div>
+        <TXCactus style={{ width: 55, height: 130 }} />
       </motion.div>
 
       {/* Left cactus — grows slightly later */}
@@ -541,13 +442,7 @@ function WhartonHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 0.95, delay: 0.46, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div
-          animate={{ rotate: [1.2, -1.2, 1.2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          style={{ transformOrigin: "50% 100%" }}
-        >
-          <TXCactus style={{ width: 40, height: 100, transform: "scaleX(-1)" }} />
-        </motion.div>
+        <TXCactus style={{ width: 40, height: 100, transform: "scaleX(-1)" }} />
       </motion.div>
 
       {/* Cowboy hat — tips in from above like someone tossed it */}
@@ -558,12 +453,7 @@ function WhartonHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.65 }}
       >
-        <motion.div
-          animate={{ y: [0, -10, 0], rotate: [-4, 4, -4] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <TXCowboyHat style={{ width: 80, height: 50 }} />
-        </motion.div>
+        <TXCowboyHat style={{ width: 80, height: 50 }} />
       </motion.div>
 
       {/* Fence — rises from the ground */}
@@ -1657,11 +1547,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.18, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          style={{ transformOrigin: "50% 100%" }}>
-          <WildJungleTree style={{ width: 115, height: 260 }} />
-        </motion.div>
+        <WildJungleTree style={{ width: 115, height: 260 }} />
       </motion.div>
 
       {/* Shorter tree — left */}
@@ -1671,11 +1557,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.1, delay: 0.36, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [1.2, -1.2, 1.2] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          style={{ transformOrigin: "50% 100%" }}>
-          <WildJungleTree style={{ width: 82, height: 195, transform: "scaleX(-1)" }} />
-        </motion.div>
+        <WildJungleTree style={{ width: 82, height: 195, transform: "scaleX(-1)" }} />
       </motion.div>
 
       {/* Hanging vines — left cluster */}
@@ -1685,11 +1567,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.5, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [-2, 2, -2] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ transformOrigin: "20px 0px" }}>
-          <WildVine style={{ width: 40, height: 230 }} />
-        </motion.div>
+        <WildVine style={{ width: 40, height: 230 }} />
       </motion.div>
       <motion.div className="absolute top-0 left-28"
         initial={{ opacity: 0, y: -20 }}
@@ -1697,11 +1575,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.62, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-          style={{ transformOrigin: "20px 0px" }}>
-          <WildVine style={{ width: 30, height: 160 }} />
-        </motion.div>
+        <WildVine style={{ width: 30, height: 160 }} />
       </motion.div>
 
       {/* Hanging vines — right cluster */}
@@ -1711,11 +1585,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.65, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [2, -2, 2] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          style={{ transformOrigin: "20px 0px" }}>
-          <WildVine style={{ width: 36, height: 185, transform: "scaleX(-1)" }} />
-        </motion.div>
+        <WildVine style={{ width: 36, height: 185, transform: "scaleX(-1)" }} />
       </motion.div>
       <motion.div className="absolute top-0 right-36"
         initial={{ opacity: 0, y: -25 }}
@@ -1723,11 +1593,7 @@ function WildHeroDecor() {
         viewport={{ once: true, amount: 0.01 }}
         transition={{ duration: 1.0, delay: 0.78, ease: [0.25, 0, 0, 1] }}
       >
-        <motion.div animate={{ rotate: [1, -1, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          style={{ transformOrigin: "20px 0px" }}>
-          <WildVine style={{ width: 28, height: 145, transform: "scaleX(-1)" }} />
-        </motion.div>
+        <WildVine style={{ width: 28, height: 145, transform: "scaleX(-1)" }} />
       </motion.div>
 
       {/* Birds — more spread across the sky */}
@@ -2190,7 +2056,6 @@ function StickyChapterNav({
             style={{
               background: navBg,
               border: `1px solid ${accentColor}33`,
-              backdropFilter: "blur(14px)",
               boxShadow: `0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px ${accentColor}18`,
             }}
           >
@@ -2372,44 +2237,28 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
           viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.2, ease: [0.25, 0, 0, 1] }}
         >
-          <motion.div animate={{ rotate: [-1.5, 1.5, -1.5] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            style={{ transformOrigin: "20px 0px" }}>
-            <WildVine style={{ width: 38, height: 220 }} />
-          </motion.div>
+          <WildVine style={{ width: 38, height: 220 }} />
         </motion.div>
         <motion.div className="absolute top-0 left-28"
           initial={{ opacity: 0, y: -14 }} whileInView={{ opacity: 0.36, y: 0 }}
           viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.38, ease: [0.25, 0, 0, 1] }}
         >
-          <motion.div animate={{ rotate: [-1, 1, -1] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            style={{ transformOrigin: "20px 0px" }}>
-            <WildVine style={{ width: 28, height: 160 }} />
-          </motion.div>
+          <WildVine style={{ width: 28, height: 160 }} />
         </motion.div>
         <motion.div className="absolute top-0 right-12"
           initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 0.5, y: 0 }}
           viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0, 0, 1] }}
         >
-          <motion.div animate={{ rotate: [1.5, -1.5, 1.5] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            style={{ transformOrigin: "20px 0px" }}>
-            <WildVine style={{ width: 34, height: 190, transform: "scaleX(-1)" }} />
-          </motion.div>
+          <WildVine style={{ width: 34, height: 190, transform: "scaleX(-1)" }} />
         </motion.div>
         <motion.div className="absolute top-0 right-36"
           initial={{ opacity: 0, y: -12 }} whileInView={{ opacity: 0.3, y: 0 }}
           viewport={{ once: true, amount: 0.01 }}
           transition={{ duration: 1.0, delay: 0.5, ease: [0.25, 0, 0, 1] }}
         >
-          <motion.div animate={{ rotate: [1, -1, 1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            style={{ transformOrigin: "20px 0px" }}>
-            <WildVine style={{ width: 26, height: 140, transform: "scaleX(-1)" }} />
-          </motion.div>
+          <WildVine style={{ width: 26, height: 140, transform: "scaleX(-1)" }} />
         </motion.div>
         {/* Jungle floor at the bottom of this block */}
         <div className="absolute bottom-0 left-0 right-0">
@@ -2689,6 +2538,16 @@ export default function ChapterPageClient({ chapter }: Props) {
 
   const lite = usePerfMode();
 
+  // Hero decor runs many looping animations — only mount them while the hero
+  // is on screen so they stop competing with the scroll once you're past it.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroInView = useInView(heroRef, { margin: "200px 0px 0px 0px" });
+  const showDecor = !lite && heroInView;
+
+  const descRef = useRef<HTMLElement>(null);
+  const descInView = useInView(descRef, { margin: "150px" });
+  const descShow = !lite && descInView;
+
   const isKeyWest = chapter.theme.decorative === "tropical";
   const isTexas = chapter.theme.decorative === "ranch";
   const isNightlife = chapter.theme.decorative === "nightlife";
@@ -2719,7 +2578,6 @@ export default function ChapterPageClient({ chapter }: Props) {
   } = tc;
 
   return (
-    <PerfContext.Provider value={lite}>
     <motion.div
       className="min-h-screen relative overflow-x-hidden"
       style={{ backgroundColor: pageBg }}
@@ -2744,6 +2602,7 @@ export default function ChapterPageClient({ chapter }: Props) {
       {/* ─── HERO ──────────────────────────────── */}
       <section className="relative z-10 pt-0">
         <div
+          ref={heroRef}
           className="relative overflow-hidden"
           style={{ minHeight: "75vh", background: heroBg }}
         >
@@ -2783,22 +2642,23 @@ export default function ChapterPageClient({ chapter }: Props) {
             )}
             <div className="absolute inset-0" style={{ background: heroOverlayGradient }} />
             <div
-              className="absolute inset-0 mix-blend-multiply opacity-20"
-              style={{ backgroundColor: accentColor }}
+              className="absolute inset-0"
+              style={{ backgroundColor: accentColor, opacity: 0.12 }}
             />
           </div>
 
-          {/* Heavy animated hero decor — skipped in lite mode for low-end/touch devices */}
-          {!lite && isKeyWest && <KeyWestHeroDecor />}
-          {!lite && isTexas && <WhartonHeroDecor />}
-          {!lite && isWestern && <DallasHeroDecor />}
-          {!lite && isNightlife && <NightCityHeroDecor />}
-          {!lite && isSkyline && <HoustonSkylineHeroDecor />}
-          {!lite && isCoastal && <CoastalHeroDecor />}
-          {!lite && isRomantic && <RomanticHeroDecor />}
-          {!lite && isFrontier && <FrontierHeroDecor />}
-          {!lite && isWild && <WildHeroDecor />}
-          {!lite && isStudio && <StudioHeroDecor />}
+          {/* Heavy animated hero decor — skipped in lite mode, and unmounted
+              once the hero scrolls out of view so its loops stop eating frames */}
+          {showDecor && isKeyWest && <KeyWestHeroDecor />}
+          {showDecor && isTexas && <WhartonHeroDecor />}
+          {showDecor && isWestern && <DallasHeroDecor />}
+          {showDecor && isNightlife && <NightCityHeroDecor />}
+          {showDecor && isSkyline && <HoustonSkylineHeroDecor />}
+          {showDecor && isCoastal && <CoastalHeroDecor />}
+          {showDecor && isRomantic && <RomanticHeroDecor />}
+          {showDecor && isFrontier && <FrontierHeroDecor />}
+          {showDecor && isWild && <WildHeroDecor />}
+          {showDecor && isStudio && <StudioHeroDecor />}
 
           {/* Back button */}
           <motion.div
@@ -2882,8 +2742,7 @@ export default function ChapterPageClient({ chapter }: Props) {
               style={{
                 border: `1px solid ${accentColor}44`,
                 borderRadius: 2,
-                backdropFilter: "blur(10px)",
-                background: `${accentColor}15`,
+                background: `${accentColor}22`,
               }}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -2911,11 +2770,13 @@ export default function ChapterPageClient({ chapter }: Props) {
 
       {/* ─── DESCRIPTION ───────────────────────── */}
       <section
+        ref={descRef}
         className="relative z-10 max-w-2xl mx-auto px-6 py-16 text-center"
         style={{ background: descBg }}
       >
-        {/* Chapter-specific corner accents — each component owns its reveal + idle */}
-        {!lite && isKeyWest && (
+        {/* Chapter-specific corner accents — only mounted while this section is
+            on screen so their idle loops don't run during the rest of the scroll */}
+        {descShow && isKeyWest && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={30} maxRotation={28}>
@@ -2934,7 +2795,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isTexas && (
+        {descShow && isTexas && (
           <>
             <div className="absolute top-6 left-8" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={38} maxRotation={32}>
@@ -2948,7 +2809,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isNightlife && (
+        {descShow && isNightlife && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.32 }}>
               <CursorRepulsor maxPush={36} maxRotation={32}>
@@ -2967,7 +2828,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isSkyline && (
+        {descShow && isSkyline && (
           <>
             <div className="absolute top-6 left-5" style={{ opacity: 0.62 }}>
               <CursorRepulsor maxPush={34} maxRotation={20}>
@@ -2986,7 +2847,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isWestern && (
+        {descShow && isWestern && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.28 }}>
               <CursorRepulsor maxPush={38} maxRotation={28}>
@@ -3000,7 +2861,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isCoastal && (
+        {descShow && isCoastal && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.35 }}>
               <CursorRepulsor maxPush={32} maxRotation={24}>
@@ -3019,7 +2880,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isRomantic && (
+        {descShow && isRomantic && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.28 }}>
               <CursorRepulsor maxPush={34} maxRotation={28}>
@@ -3033,7 +2894,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isFrontier && (
+        {descShow && isFrontier && (
           <>
             <div className="absolute top-6 left-8" style={{ opacity: 0.22 }}>
               <CursorRepulsor maxPush={38} maxRotation={32}>
@@ -3042,7 +2903,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isWild && (
+        {descShow && isWild && (
           <>
             <div className="absolute top-8 left-6" style={{ opacity: 0.32 }}>
               <CursorRepulsor maxPush={30} maxRotation={22}>
@@ -3056,7 +2917,7 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {!lite && isStudio && (
+        {descShow && isStudio && (
           <>
             <div className="absolute top-6 right-8" style={{ opacity: 0.38 }}>
               <CursorRepulsor maxPush={28} maxRotation={16}>
@@ -3313,6 +3174,5 @@ export default function ChapterPageClient({ chapter }: Props) {
         </div>
       </div>
     </motion.div>
-    </PerfContext.Provider>
   );
 }

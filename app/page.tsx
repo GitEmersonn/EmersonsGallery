@@ -6,8 +6,6 @@ import {
   AnimatePresence,
   useScroll,
   useTransform,
-  useMotionValue,
-  useSpring,
   useInView,
   useAnimationControls,
 } from "framer-motion";
@@ -24,7 +22,7 @@ function sr(seed: number) {
   return x - Math.floor(x);
 }
 
-const BOKEH = Array.from({ length: 7 }, (_, i) => ({
+const BOKEH = Array.from({ length: 3 }, (_, i) => ({
   id: i,
   x: sr(i * 3) * 100,
   y: sr(i * 3 + 1) * 110 - 10,
@@ -33,16 +31,15 @@ const BOKEH = Array.from({ length: 7 }, (_, i) => ({
   delay: sr(i * 5) * 6,
   opacity: 0.018 + sr(i * 2) * 0.045,
   color:
-    i % 4 === 0
+    i % 3 === 0
       ? "212,160,23"   // vintage gold
-      : i % 4 === 1
-      ? "196,168,130"  // sepia
-      : i % 4 === 2
+      : i % 3 === 1
       ? "231,111,81"   // warm coral
       : "244,162,97",  // film orange
 }));
 
 // ─── Bokeh background ─────────────────────────────────────────────────────────
+// Soft gradient orbs — no blur filter (softness comes from the gradient falloff).
 function BokehBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
@@ -55,14 +52,11 @@ function BokehBackground() {
             top: `${p.y}%`,
             width: p.size,
             height: p.size,
-            background: `radial-gradient(circle, rgba(${p.color},0.8) 0%, transparent 68%)`,
-            filter: "blur(18px)",
-            willChange: "transform, opacity",
+            background: `radial-gradient(circle, rgba(${p.color},0.55) 0%, transparent 60%)`,
           }}
           animate={{
             y: [0, -(35 + p.size * 0.15), 0],
             opacity: [p.opacity, p.opacity * 2.2, p.opacity * 0.6, p.opacity],
-            scale: [1, 1.08, 0.96, 1],
           }}
           transition={{
             duration: p.dur,
@@ -327,6 +321,9 @@ const equipment = [
 export default function HomePage() {
   const lite = usePerfMode();
   const heroRef = useRef<HTMLElement>(null);
+  // Bokeh + cursor glow loop forever — only run them while the hero is on screen.
+  const heroInView = useInView(heroRef, { margin: "100px 0px 0px 0px" });
+  const showHeroFx = !lite && heroInView;
   const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
 
@@ -340,27 +337,6 @@ export default function HomePage() {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, -70]);
   const heroOpacity = useTransform(scrollY, [0, 380], [1, 0]);
-
-  // Cursor glow — follows mouse across the hero
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const glowX = useSpring(mouseX, { stiffness: 80, damping: 20 });
-  const glowY = useSpring(mouseY, { stiffness: 80, damping: 20 });
-  const glowLeft = useTransform(glowX, [-0.5, 0.5], ["20%", "80%"]);
-  const glowTop = useTransform(glowY, [-0.5, 0.5], ["20%", "80%"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (lite) return;
-    const rect = heroRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ position: "relative" }}>
@@ -399,8 +375,6 @@ export default function HomePage() {
         ref={heroRef}
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ y: heroY, zIndex: 1 }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
       >
         {/* Base dark background */}
         <div
@@ -439,25 +413,7 @@ export default function HomePage() {
         )}
 
         {/* ── Bokeh particles ── */}
-        {!lite && <BokehBackground />}
-
-        {/* Cursor-following warm glow — skipped on low-end / touch devices */}
-        {!lite && (
-          <motion.div
-            className="absolute pointer-events-none"
-            style={{
-              left: glowLeft,
-              top: glowTop,
-              width: 380,
-              height: 380,
-              x: "-50%",
-              y: "-50%",
-              background:
-                "radial-gradient(circle, rgba(212,160,23,0.08) 0%, transparent 65%)",
-              filter: "blur(40px)",
-            }}
-          />
-        )}
+        {showHeroFx && <BokehBackground />}
 
         {/* Gold corner brackets */}
         <div className="absolute top-2 left-2 w-14 h-14 pointer-events-none" style={{ borderTop: "1px solid rgba(212,160,23,0.22)", borderLeft: "1px solid rgba(212,160,23,0.22)" }} />
