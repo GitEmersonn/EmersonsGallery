@@ -28,7 +28,7 @@ export default function PhotoGrid({ photos, accentColor }: PhotoGridProps) {
           return (
             <motion.div
               key={photo.id}
-              className="polaroid mb-6 cursor-pointer inline-block w-full relative group"
+              className="polaroid mb-6 cursor-pointer inline-block w-full relative group cv-auto"
               style={{ rotate: rot, transformOrigin: "center bottom" }}
               initial={{ opacity: 0, y: 40, rotate: rot }}
               whileInView={{ opacity: 1, y: 0, rotate: rot }}

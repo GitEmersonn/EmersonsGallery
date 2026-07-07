@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence, useInView, MotionConfig } from "framer-motion";
 import type { Chapter } from "@/data/chapters";
 import { chapters as allChapters } from "@/data/chapters";
 import PhotoGrid from "@/components/PhotoGrid";
@@ -2578,12 +2578,13 @@ export default function ChapterPageClient({ chapter }: Props) {
   } = tc;
 
   return (
+    <MotionConfig reducedMotion="always">
     <motion.div
       className="min-h-screen relative overflow-x-hidden"
       style={{ backgroundColor: pageBg }}
-      initial={{ opacity: 0, scale: 0.995 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.55, ease: [0.25, 0, 0, 1] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {/* Fixed ambient glow */}
       <div
@@ -3174,5 +3175,6 @@ export default function ChapterPageClient({ chapter }: Props) {
         </div>
       </div>
     </motion.div>
+    </MotionConfig>
   );
 }

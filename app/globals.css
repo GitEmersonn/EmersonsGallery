@@ -40,6 +40,9 @@ body {
 }
 
 /* ─── Film grain overlay ─────────────────────────── */
+/* NOTE: no mix-blend-mode — a blended fixed full-screen layer re-composites the
+   whole viewport every scroll frame and tanks scroll performance. Plain low-
+   opacity texture keeps the look at almost no cost. */
 .film-grain::before {
   content: "";
   position: fixed;
@@ -49,8 +52,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 160px 160px;
-  opacity: 0.3;
-  mix-blend-mode: overlay;
+  opacity: 0.06;
 }
 
 /* ─── Polaroid shell ─────────────────────────────── */
@@ -121,20 +123,13 @@ img { transition: opacity 0.35s ease; }
     #f5e6c8 100%
   );
   background-size: 250% auto;
+  background-position: center;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: title-shimmer 5s linear infinite;
 }
 
-/* ─── Page background gradient shift ────────────────── */
-/* Uses transform (GPU-composited) instead of background-position (causes repaint) */
-@keyframes bg-gradient-shift {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-33.33%); }
-  100% { transform: translateY(0); }
-}
-
+/* ─── Page background gradient (static) ────────────────── */
 .page-bg-gradient {
   overflow: hidden;
 }
@@ -145,42 +140,15 @@ img { transition: opacity 0.35s ease; }
   left: 0;
   right: 0;
   top: 0;
-  height: 300%;
-  background: linear-gradient(
-    to bottom,
-    #1c0d03,
-    #04090e,
-    #100803,
-    #040a0e,
-    #1c0d03,
-    #04090e,
-    #100803
-  );
-  animation: bg-gradient-shift 18s ease-in-out infinite;
-  will-change: transform;
+  bottom: 0;
+  background: linear-gradient(to bottom, #1c0d03, #04090e, #100803);
 }
 
-/* ─── Letter float animation ─────────────────────── */
-@keyframes letter-float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-5px); }
+/* ─── Off-screen content skipping — big scroll win on long pages ─── */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
-
-.letter-float span {
-  display: inline-block;
-}
-.letter-float span:nth-child(1)  { animation: letter-float 4.0s ease-in-out infinite; animation-delay: 0.00s; }
-.letter-float span:nth-child(2)  { animation: letter-float 4.2s ease-in-out infinite; animation-delay: 0.08s; }
-.letter-float span:nth-child(3)  { animation: letter-float 3.8s ease-in-out infinite; animation-delay: 0.16s; }
-.letter-float span:nth-child(4)  { animation: letter-float 4.1s ease-in-out infinite; animation-delay: 0.24s; }
-.letter-float span:nth-child(5)  { animation: letter-float 3.9s ease-in-out infinite; animation-delay: 0.32s; }
-.letter-float span:nth-child(6)  { animation: letter-float 4.3s ease-in-out infinite; animation-delay: 0.40s; }
-.letter-float span:nth-child(7)  { animation: letter-float 4.0s ease-in-out infinite; animation-delay: 0.48s; }
-.letter-float span:nth-child(8)  { animation: letter-float 3.7s ease-in-out infinite; animation-delay: 0.56s; }
-.letter-float span:nth-child(9)  { animation: letter-float 4.2s ease-in-out infinite; animation-delay: 0.64s; }
-.letter-float span:nth-child(10) { animation: letter-float 3.9s ease-in-out infinite; animation-delay: 0.72s; }
-.letter-float span:nth-child(11) { animation: letter-float 4.1s ease-in-out infinite; animation-delay: 0.80s; }
-.letter-float span:nth-child(12) { animation: letter-float 4.4s ease-in-out infinite; animation-delay: 0.88s; }
 
 /* ─── Reduced-motion: honor OS setting, stop all looping CSS animations ─── */
 @media (prefers-reduced-motion: reduce) {

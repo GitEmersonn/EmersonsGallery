@@ -14,61 +14,6 @@ import { chapters } from "@/data/chapters";
 import type { Chapter } from "@/data/chapters";
 import ChapterCard from "@/components/ChapterCard";
 import BookingForm from "@/components/BookingForm";
-import { usePerfMode } from "@/hooks/usePerfMode";
-
-// ─── Deterministic "random" — same on SSR and client ─────────────────────────
-function sr(seed: number) {
-  const x = Math.sin(seed + 1) * 10000;
-  return x - Math.floor(x);
-}
-
-const BOKEH = Array.from({ length: 3 }, (_, i) => ({
-  id: i,
-  x: sr(i * 3) * 100,
-  y: sr(i * 3 + 1) * 110 - 10,
-  size: 55 + sr(i * 3 + 2) * 110,
-  dur: 9 + sr(i * 7) * 11,
-  delay: sr(i * 5) * 6,
-  opacity: 0.018 + sr(i * 2) * 0.045,
-  color:
-    i % 3 === 0
-      ? "212,160,23"   // vintage gold
-      : i % 3 === 1
-      ? "231,111,81"   // warm coral
-      : "244,162,97",  // film orange
-}));
-
-// ─── Bokeh background ─────────────────────────────────────────────────────────
-// Soft gradient orbs — no blur filter (softness comes from the gradient falloff).
-function BokehBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-      {BOKEH.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            background: `radial-gradient(circle, rgba(${p.color},0.55) 0%, transparent 60%)`,
-          }}
-          animate={{
-            y: [0, -(35 + p.size * 0.15), 0],
-            opacity: [p.opacity, p.opacity * 2.2, p.opacity * 0.6, p.opacity],
-          }}
-          transition={{
-            duration: p.dur,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 // ─── Aperture Logo — reveal + passive animation ───────────────────────────────
 function ApertureLogo({
@@ -102,23 +47,15 @@ function ApertureLogo({
     })
     .join(" ");
 
-  // Sequence: reveal finishes (~1.1s), then start pupil pulse
+  // Sequence: reveal finishes (~1.1s), then pupil settles in (no perpetual pulse)
   useEffect(() => {
     if (!inView) return;
     const t = setTimeout(() => {
-      pupilControls
-        .start({
-          scale: [0, 1.25, 1],
-          opacity: [0, 0.8, 0.55],
-          transition: { duration: 0.5, ease: "easeOut" },
-        })
-        .then(() => {
-          pupilControls.start({
-            scale: [1, 1.18, 1],
-            opacity: [0.55, 0.78, 0.55],
-            transition: { duration: 2.8, repeat: Infinity, ease: "easeInOut" },
-          });
-        });
+      pupilControls.start({
+        scale: [0, 1.25, 1],
+        opacity: [0, 0.8, 0.55],
+        transition: { duration: 0.5, ease: "easeOut" },
+      });
     }, 1050);
     return () => clearTimeout(t);
   }, [inView, pupilControls]);
@@ -144,11 +81,9 @@ function ApertureLogo({
         style={{ transformOrigin: `${C}px ${C}px` }}
       />
 
-      {/* Blades — draw in staggered, then rotate */}
+      {/* Blades — draw in staggered */}
       <motion.g
         style={{ transformOrigin: `${C}px ${C}px` }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: 1.2 }}
       >
         {blades.map(({ d, x1, y1, x2, y2 }, i) => (
           <motion.path
@@ -319,11 +254,7 @@ const equipment = [
 
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const lite = usePerfMode();
   const heroRef = useRef<HTMLElement>(null);
-  // Bokeh + cursor glow loop forever — only run them while the hero is on screen.
-  const heroInView = useInView(heroRef, { margin: "100px 0px 0px 0px" });
-  const showHeroFx = !lite && heroInView;
   const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
 
@@ -411,9 +342,6 @@ export default function HomePage() {
             transition={{ duration: 1.4, delay: 0.3, ease: "linear", times: [0, 0.05, 0.9, 1] }}
           />
         )}
-
-        {/* ── Bokeh particles ── */}
-        {showHeroFx && <BokehBackground />}
 
         {/* Gold corner brackets */}
         <div className="absolute top-2 left-2 w-14 h-14 pointer-events-none" style={{ borderTop: "1px solid rgba(212,160,23,0.22)", borderLeft: "1px solid rgba(212,160,23,0.22)" }} />
@@ -524,10 +452,7 @@ export default function HomePage() {
             >
               OPEN THE ALBUM
             </p>
-            <motion.div
-              animate={{ y: [0, 7, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            >
+            <div>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M5 8l5 5 5-5"
@@ -538,7 +463,7 @@ export default function HomePage() {
                   opacity="0.42"
                 />
               </svg>
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
 
