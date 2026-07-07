@@ -307,12 +307,14 @@ export default function HomePage() {
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ y: heroY, zIndex: 1 }}
       >
-        {/* Base dark background */}
+        {/* Warm center glow that fades to transparent — lets the shared page
+            background show through the edges/bottom so the hero dissolves
+            seamlessly into the rest of the page (no band). */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 130% 90% at 50% 65%, rgba(45,31,14,0.85) 0%, rgba(26,16,8,0.8) 55%, rgba(13,8,4,0.7) 100%)",
+              "radial-gradient(ellipse 130% 80% at 50% 42%, rgba(45,31,14,0.72) 0%, rgba(26,16,8,0.4) 45%, transparent 75%)",
           }}
         />
 
@@ -467,15 +469,6 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
 
-        {/* Smooth bottom fade — dissolves hero into the page background */}
-        <div
-          className="absolute bottom-0 left-0 right-0 pointer-events-none"
-          style={{
-            height: 280,
-            background: "linear-gradient(to bottom, transparent 0%, rgba(13,8,2,0.55) 45%, rgba(10,6,1,0.88) 75%, #0a0601 100%)",
-            zIndex: 6,
-          }}
-        />
       </motion.section>
 
       {/* ─── CHAPTERS ──────────────────────────────────── */}

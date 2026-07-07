@@ -141,7 +141,9 @@ img { transition: opacity 0.35s ease; }
   right: 0;
   top: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, #1c0d03, #04090e, #100803);
+  /* Warm near-black that matches the hero's bottom fade (#0a0601) so there is
+     no visible seam/bar where the hero dissolves into the rest of the page. */
+  background: linear-gradient(to bottom, #0b0702, #0a0601 45%, #0d0a05);
 }
 
 /* ─── Off-screen content skipping — big scroll win on long pages ─── */
