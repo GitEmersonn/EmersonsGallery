@@ -252,11 +252,48 @@ const equipment = [
   },
 ];
 
+// ─── Curated hero photographs (full-bleed cinematic crossfade) ────────────────
+// Hand-picked signature frames. object-position keeps the subject in view when
+// a portrait source is cropped to a wide, full-screen frame.
+const HERO_SLIDES: { src: string; alt: string; position: string }[] = [
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782021806/brown_Pelicans_Flying_Galveston_quqhuk.jpg",
+    alt: "Brown pelicans in flight over the Gulf Coast",
+    position: "center",
+  },
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782022001/Galveston_Landscapes__02_lqruwp.jpg",
+    alt: "A Texas landscape",
+    position: "center",
+  },
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782022430/Ella_and_Leo_npqsze.jpg",
+    alt: "Ella & Leo on the Galveston shore",
+    position: "center 18%",
+  },
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1778462713/IMG_2500_bgn2oi.jpg",
+    alt: "Wyatt & Georgia's Key West wedding",
+    position: "center 48%",
+  },
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1773472722/IMG_1015_itezmk.jpg",
+    alt: "Wharton, Texas",
+    position: "center",
+  },
+  {
+    src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782022341/Galveston_boat_brovbb.jpg",
+    alt: "A boat on the water, Galveston",
+    position: "center 70%",
+  },
+];
+
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
   const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
 
   useEffect(() => {
     const visited = sessionStorage.getItem("eg-intro");
@@ -264,6 +301,14 @@ export default function HomePage() {
       sessionStorage.setItem("eg-intro", "1");
       setIsFirstVisit(true);
     }
+  }, []);
+
+  // Slowly crossfade through the curated frames
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHeroSlide((i) => (i + 1) % HERO_SLIDES.length);
+    }, 6500);
+    return () => clearInterval(id);
   }, []);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, -70]);
@@ -307,15 +352,51 @@ export default function HomePage() {
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ y: heroY, zIndex: 1 }}
       >
-        {/* Warm center glow that fades to transparent — lets the shared page
-            background show through the edges/bottom so the hero dissolves
-            seamlessly into the rest of the page (no band). */}
+        {/* ── Full-bleed cinematic photography — crossfades through curated frames ── */}
+        <div className="absolute inset-0 overflow-hidden">
+          {HERO_SLIDES.map((slide, i) => (
+            <motion.div
+              key={slide.src}
+              className="absolute inset-0"
+              initial={false}
+              animate={{ opacity: i === heroSlide ? 1 : 0 }}
+              transition={{ duration: 1.6, ease: "easeInOut" }}
+            >
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: slide.position }}
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Legibility + brand scrim: darkens top & bottom, keeps the photo lit
+            in the middle, and ends in the page colour so the hero dissolves
+            seamlessly into the rest of the page (no hard edge/band). */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 130% 80% at 50% 42%, rgba(45,31,14,0.72) 0%, rgba(26,16,8,0.4) 45%, transparent 75%)",
+              "linear-gradient(to bottom, rgba(8,5,1,0.55) 0%, rgba(8,5,1,0.12) 24%, rgba(8,5,1,0.14) 48%, rgba(8,5,1,0.6) 80%, #0a0601 100%)",
           }}
+        />
+        {/* Soft center vignette to lift the title off the image */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 72% 52% at 50% 46%, rgba(0,0,0,0.42) 0%, transparent 66%)",
+          }}
+        />
+        {/* Faint warm wash for brand cohesion */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "rgba(45,26,8,0.12)" }}
         />
 
         {/* ── First-visit: dark veil that lifts to reveal the hero ── */}
@@ -466,6 +547,36 @@ export default function HomePage() {
                 />
               </svg>
             </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Frame indicators — quietly signal there is more to see */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          style={{ opacity: heroOpacity }}
+        >
+          <motion.div
+            className="flex items-center gap-2.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: isFirstVisit ? 3.9 : 0.9, duration: 0.6 }}
+          >
+            {HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`View frame ${i + 1}`}
+                onClick={() => setHeroSlide(i)}
+                className="rounded-full"
+                style={{
+                  width: i === heroSlide ? 22 : 6,
+                  height: 6,
+                  background: i === heroSlide ? "#d4a017" : "rgba(212,160,23,0.35)",
+                  transition: "width 0.5s ease, background 0.5s ease",
+                  cursor: "pointer",
+                }}
+              />
+            ))}
           </motion.div>
         </motion.div>
 
