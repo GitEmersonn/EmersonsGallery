@@ -1058,6 +1058,23 @@ function SkylineDivider({ color, strong = false }: { color: string; strong?: boo
   );
 }
 
+function SailDivider({ color, strong = false }: { color: string; strong?: boolean }) {
+  return (
+    <div className="w-full overflow-hidden" style={{ height: strong ? 34 : 22 }}>
+      <svg viewBox="0 0 800 34" preserveAspectRatio="none" className="w-full h-full" fill="none">
+        {/* Horizon */}
+        <line x1="0" y1="24" x2="352" y2="24" stroke={color} strokeWidth={strong ? 1.5 : 1} opacity={strong ? 0.3 : 0.16} />
+        {/* Little sailboat riding the centre of the line */}
+        <line x1="400" y1="6" x2="400" y2="24" stroke={color} strokeWidth="1.2" opacity={strong ? 0.6 : 0.34} />
+        <path d="M402 7 L402 23 L416 23 Z" fill={color} opacity={strong ? 0.5 : 0.28} />
+        <path d="M398 11 L398 23 L387 23 Z" fill={color} opacity={strong ? 0.38 : 0.22} />
+        <path d="M382 24 L418 24 L413 30 L387 30 Z" fill={color} opacity={strong ? 0.55 : 0.3} />
+        <line x1="448" y1="24" x2="800" y2="24" stroke={color} strokeWidth={strong ? 1.5 : 1} opacity={strong ? 0.3 : 0.16} />
+      </svg>
+    </div>
+  );
+}
+
 // ─── Coastal / Gulf Coast (Ella & Leo) ───────────────────────────────────────
 
 function CoastalSunset({ size = 100 }: { size?: number }) {
@@ -1275,6 +1292,518 @@ function CoastalHeroDecor() {
         transition={{ duration: 0.9, delay: 0.1, ease: [0.25, 0, 0, 1] }}
       >
         <CoastalSandWave className="w-full" />
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Engagement / Key West garden & shore (Wyatt & Georgia) ──────────────────
+// Palette: ivory for the dress and the sails, champagne for sand and gold bands,
+// garden green for the foliage, and an icy white for the diamond's fire.
+
+const ENG_IVORY = "#F6EFE4";
+const ENG_CHAMPAGNE = "#E8C39E";
+const ENG_GREEN = "#6BBF8E";
+const ENG_DEEP_GREEN = "#2F6B4A";
+const ENG_SUN = "#F0A15E";
+const ENG_DIAMOND = "#DDF3FF";
+const ENG_WATER = "#4E9AA8";
+const ENG_DEEP_WATER = "#1F4E5C";
+const ENG_SAND = "#D9C6A5";
+
+function EngagementSunset({ size = 120 }: { size?: number }) {
+  return (
+    <motion.svg
+      width={size} height={size} viewBox="0 0 120 120" fill="none"
+      initial={{ scale: 0.5, opacity: 0 }}
+      whileInView={{ scale: 1, opacity: 1 }}
+      viewport={{ once: true, amount: 0.01 }}
+      transition={{ duration: 1.1, ease: [0.25, 0, 0, 1], delay: 0.15 }}
+      style={{ transformOrigin: "60px 60px" }}
+    >
+      {/* Horizon haze rings */}
+      <motion.circle cx="60" cy="52" r="44" stroke={ENG_SUN} strokeWidth="1" opacity="0.14"
+        animate={{ scale: [1, 1.14, 1] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transformOrigin: "60px 52px" }} />
+      <motion.circle cx="60" cy="52" r="32" stroke={ENG_CHAMPAGNE} strokeWidth="1.2" opacity="0.22"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 3.6, repeat: Infinity, delay: 0.5, ease: "easeInOut" }}
+        style={{ transformOrigin: "60px 52px" }} />
+      {/* Sun sinking toward the water */}
+      <motion.circle cx="60" cy="52" r="20" fill={ENG_SUN} opacity="0.9"
+        animate={{ scale: [1, 1.06, 1] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transformOrigin: "60px 52px" }} />
+      <circle cx="60" cy="52" r="11" fill={ENG_CHAMPAGNE} opacity="0.85" />
+      <circle cx="60" cy="52" r="5" fill={ENG_IVORY} opacity="0.6" />
+      {/* Its reflection, broken into shimmering bars on the swell */}
+      {[76, 84, 92, 100, 108].map((y, i) => {
+        const half = 22 - i * 3;
+        return (
+          <motion.rect key={y} x={60 - half} y={y} width={half * 2} height="2.5" rx="1.25"
+            fill={ENG_CHAMPAGNE}
+            animate={{ opacity: [0.08, 0.34, 0.08] }}
+            transition={{ duration: 2.6 + i * 0.35, repeat: Infinity, ease: "easeInOut", delay: i * 0.22 }} />
+        );
+      })}
+    </motion.svg>
+  );
+}
+
+function EngagementRing({ size = 54, delay = 0 }: { size?: number; delay?: number }) {
+  return (
+    // Idle: turns slowly, the way a ring catches light when a hand moves
+    <motion.div
+      style={{ width: size, height: size }}
+      animate={{ y: [0, -6, 0], rotate: [-6, 6, -6] }}
+      transition={{ duration: 5.5 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <motion.svg
+        viewBox="0 0 54 54" width={size} height={size} fill="none"
+        initial={{ scale: 0, opacity: 0, rotate: -40 }}
+        whileInView={{ scale: 1, opacity: 1, rotate: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ type: "spring", stiffness: 200, damping: 14 }}
+        style={{ transformOrigin: "27px 27px" }}
+      >
+        {/* Gold band */}
+        <ellipse cx="27" cy="36" rx="13" ry="14" stroke={ENG_CHAMPAGNE} strokeWidth="3" fill="none" opacity="0.85" />
+        <ellipse cx="27" cy="36" rx="13" ry="14" stroke={ENG_IVORY} strokeWidth="1" fill="none" opacity="0.3" />
+        {/* Prongs holding the stone */}
+        <path d="M22 23 L27 27 L32 23" stroke={ENG_CHAMPAGNE} strokeWidth="1.6" fill="none" opacity="0.7" />
+        {/* Brilliant-cut stone: crown above the girdle, pavilion below */}
+        <polygon points="27,6 37,16 27,28 17,16" fill={ENG_DIAMOND} opacity="0.9" />
+        <polygon points="27,6 37,16 27,16" fill={ENG_IVORY} opacity="0.5" />
+        <polygon points="27,16 37,16 27,28" fill={ENG_DIAMOND} opacity="0.45" />
+        <line x1="17" y1="16" x2="37" y2="16" stroke={ENG_IVORY} strokeWidth="0.8" opacity="0.55" />
+        {/* Shine sweeping across a facet */}
+        <motion.line x1="19" y1="12" x2="24" y2="9" stroke="white" strokeWidth="1.6" strokeLinecap="round"
+          animate={{ opacity: [0, 0.95, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: delay + 0.4, times: [0, 0.18, 1] }} />
+        {/* The glint off the top facet */}
+        <motion.g
+          animate={{ opacity: [0.15, 1, 0.15], scale: [0.7, 1.15, 0.7] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay }}
+          style={{ transformOrigin: "36px 9px" }}
+        >
+          <path d="M36 3 L37.2 7.8 L42 9 L37.2 10.2 L36 15 L34.8 10.2 L30 9 L34.8 7.8 Z" fill={ENG_IVORY} opacity="0.9" />
+        </motion.g>
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+function EngagementGlint({ size = 18, delay = 0 }: { size?: number; delay?: number }) {
+  return (
+    <motion.svg
+      width={size} height={size} viewBox="0 0 20 20" fill="none"
+      animate={{ opacity: [0.15, 1, 0.15], scale: [0.75, 1.1, 0.75] }}
+      transition={{ duration: 2.6 + delay * 0.4, repeat: Infinity, ease: "easeInOut", delay }}
+      style={{ transformOrigin: "10px 10px" }}
+    >
+      <path d="M10 0 L11.4 8.6 L20 10 L11.4 11.4 L10 20 L8.6 11.4 L0 10 L8.6 8.6 Z" fill={ENG_DIAMOND} opacity="0.9" />
+    </motion.svg>
+  );
+}
+
+function EngagementSailboat({ size = 72, delay = 0 }: { size?: number; delay?: number }) {
+  return (
+    // Idle: drifts across the horizon and rocks on the swell
+    <motion.div
+      style={{ width: size, height: size * 0.86 }}
+      animate={{ x: [0, 26, 0], y: [0, -3, 0], rotate: [-2.5, 2.5, -2.5] }}
+      transition={{ duration: 12 + delay * 2, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <motion.svg
+        viewBox="0 0 72 62" width={size} height={size * 0.86} fill="none"
+        initial={{ opacity: 0, x: -20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, ease: [0.25, 0, 0, 1], delay: delay * 0.2 + 0.3 }}
+      >
+        <line x1="36" y1="6" x2="36" y2="44" stroke={ENG_CHAMPAGNE} strokeWidth="1.4" opacity="0.7" />
+        {/* Sails, the same ivory as the dress */}
+        <path d="M38 8 L38 42 L62 42 Z" fill={ENG_IVORY} opacity="0.8" />
+        <path d="M34 12 L34 42 L16 42 Z" fill={ENG_IVORY} opacity="0.58" />
+        <line x1="38" y1="24" x2="50" y2="24" stroke={ENG_CHAMPAGNE} strokeWidth="0.7" opacity="0.35" />
+        <line x1="38" y1="33" x2="56" y2="33" stroke={ENG_CHAMPAGNE} strokeWidth="0.7" opacity="0.28" />
+        {/* Hull */}
+        <path d="M10 44 L64 44 L56 54 L18 54 Z" fill={ENG_CHAMPAGNE} opacity="0.75" />
+        <line x1="10" y1="44" x2="64" y2="44" stroke={ENG_IVORY} strokeWidth="1" opacity="0.4" />
+        <path d="M6 58 C16 55 26 61 36 58 C46 55 56 61 68 58" stroke={ENG_IVORY} strokeWidth="1" fill="none" opacity="0.24" />
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+// ─── Below the waterline ──────────────────────────────────────────────────────
+
+// A kelp strand rooted in the sand, leaning with the current
+function EngagementSeaweed({ size = 90, delay = 0, flip = false }: { size?: number; delay?: number; flip?: boolean }) {
+  const LEAVES: [number, number][] = [
+    [58, 13], [47, -11], [38, 12], [29, -10], [21, 9], [14, -8],
+  ];
+  return (
+    <motion.div
+      style={{ width: size * 0.5, height: size, transform: flip ? "scaleX(-1)" : undefined }}
+      animate={{ rotate: [-4, 4, -4], skewX: [-2, 2, -2] }}
+      transition={{ duration: 9 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <motion.svg
+        viewBox="0 0 36 72" width={size * 0.5} height={size} fill="none"
+        style={{ transformOrigin: "18px 72px" }}
+        initial={{ opacity: 0, scaleY: 0.4 }}
+        whileInView={{ opacity: 1, scaleY: 1 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.0, delay: delay * 0.2 + 0.2, ease: [0.25, 0, 0, 1] }}
+      >
+        <path d="M18 72 C15 56 21 42 17 28 C14 17 19 8 18 2"
+          stroke={ENG_DEEP_GREEN} strokeWidth="2" fill="none" opacity="0.62" strokeLinecap="round" />
+        {LEAVES.map(([y, dx], i) => (
+          <ellipse key={i} cx={18 + dx} cy={y} rx={Math.abs(dx) * 0.62} ry="4.4"
+            fill={ENG_GREEN} opacity={0.42 - i * 0.03}
+            transform={`rotate(${dx > 0 ? 22 : -22} ${18 + dx} ${y})`} />
+        ))}
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+// Small fish drifting across the current
+function EngagementFish({ size = 26, delay = 0, drift = 40 }: { size?: number; delay?: number; drift?: number }) {
+  return (
+    <motion.div
+      style={{ width: size, height: size * 0.6 }}
+      animate={{ x: [0, drift, 0], y: [0, -5, 0] }}
+      transition={{ duration: 14 + delay * 2, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <motion.svg
+        viewBox="0 0 40 24" width={size} height={size * 0.6} fill="none"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.8, delay: delay * 0.2 + 0.4 }}
+      >
+        {/* Body, then the tail fin behind it */}
+        <path d="M14 12 C18 4 30 4 36 12 C30 20 18 20 14 12 Z" fill={ENG_CHAMPAGNE} opacity="0.6" />
+        <path d="M14 12 L4 5 L7 12 L4 19 Z" fill={ENG_CHAMPAGNE} opacity="0.45" />
+        <path d="M24 6 L27 2 L29 7 Z" fill={ENG_SUN} opacity="0.4" />
+        <circle cx="31" cy="10.5" r="1.5" fill={ENG_DEEP_GREEN} opacity="0.65" />
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+// Scallop shell resting on the bottom
+function EngagementShell({ size = 26, delay = 0 }: { size?: number; delay?: number }) {
+  return (
+    <motion.svg
+      viewBox="0 0 32 28" width={size} height={size * 0.875} fill="none"
+      initial={{ opacity: 0, y: 8, rotate: -12 }}
+      whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+      viewport={{ once: true, amount: 0.01 }}
+      transition={{ duration: 0.7, delay, ease: [0.25, 0, 0, 1] }}
+    >
+      <path d="M16 26 C4 22 1 12 6 5 C10 0 22 0 26 5 C31 12 28 22 16 26 Z"
+        fill={ENG_IVORY} opacity="0.5" />
+      {[-9, -4.5, 0, 4.5, 9].map((dx, i) => (
+        <line key={i} x1="16" y1="25" x2={16 + dx * 1.7} y2="4"
+          stroke={ENG_CHAMPAGNE} strokeWidth="0.9" opacity={0.4 - Math.abs(i - 2) * 0.05} />
+      ))}
+      <ellipse cx="16" cy="25" rx="4" ry="2" fill={ENG_CHAMPAGNE} opacity="0.5" />
+    </motion.svg>
+  );
+}
+
+// Oyster, cracked open on a pearl
+function EngagementOyster({ size = 34, delay = 0 }: { size?: number; delay?: number }) {
+  return (
+    <motion.svg
+      viewBox="0 0 40 30" width={size} height={size * 0.75} fill="none"
+      initial={{ opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.01 }}
+      transition={{ duration: 0.7, delay, ease: [0.25, 0, 0, 1] }}
+    >
+      {/* Lower shell */}
+      <path d="M3 22 C8 30 32 30 37 22 C33 26 7 26 3 22 Z" fill={ENG_DEEP_GREEN} opacity="0.5" />
+      <path d="M4 21 C9 27 31 27 36 21 C31 17 9 17 4 21 Z" fill={ENG_CHAMPAGNE} opacity="0.34" />
+      {/* Upper shell, hinged open */}
+      <path d="M5 17 C8 6 32 6 35 17 C30 12 10 12 5 17 Z" fill={ENG_DEEP_GREEN} opacity="0.42" />
+      {/* Pearl */}
+      <circle cx="20" cy="19" r="3.6" fill={ENG_IVORY} opacity="0.85" />
+      <circle cx="18.8" cy="17.9" r="1.2" fill="#FFFFFF" opacity="0.7" />
+    </motion.svg>
+  );
+}
+
+// Fern-style frond — paired leaflets running up a midrib
+function EngagementFrond({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 90 200" fill="none">
+      <path d="M45 200 C43 160 44 120 46 80 C47 60 46 44 45 30"
+        stroke={ENG_DEEP_GREEN} strokeWidth="4" strokeLinecap="round" opacity="0.75" />
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+        const y = 36 + i * 20;
+        const len = 34 - i * 2.6;
+        return (
+          <g key={i}>
+            <path
+              d={`M45 ${y} C${45 - len * 0.6} ${y - 10} ${45 - len} ${y - 2} ${45 - len} ${y + 8} C${45 - len * 0.55} ${y + 10} ${45 - 8} ${y + 6} 45 ${y}Z`}
+              fill={ENG_GREEN} opacity={0.5 - i * 0.035} />
+            <path
+              d={`M45 ${y} C${45 + len * 0.6} ${y - 10} ${45 + len} ${y - 2} ${45 + len} ${y + 8} C${45 + len * 0.55} ${y + 10} ${45 + 8} ${y + 6} 45 ${y}Z`}
+              fill={ENG_GREEN} opacity={0.44 - i * 0.035} />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// Broad split-leaf, the lush garden note
+function EngagementMonstera({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const LOBES: [number, number][] = [[-72, 40], [-48, 52], [-24, 58], [0, 62], [24, 58], [48, 52], [72, 40]];
+  return (
+    <svg className={className} style={style} viewBox="0 0 120 130" fill="none">
+      <path d="M60 130 C58 112 58 98 60 86" stroke={ENG_DEEP_GREEN} strokeWidth="3.5" strokeLinecap="round" opacity="0.7" />
+      {LOBES.map(([deg, len], i) => (
+        <g key={i} transform={`rotate(${deg} 60 86)`}>
+          <ellipse cx="60" cy={86 - len} rx="11" ry={len * 0.55} fill={ENG_GREEN} opacity={0.32 + (i % 3) * 0.07} />
+        </g>
+      ))}
+      <circle cx="60" cy="86" r="7" fill={ENG_DEEP_GREEN} opacity="0.6" />
+    </svg>
+  );
+}
+
+// Shoreline band: swell, wet sand, and the tropical rocks along the water's edge
+// The waterline and everything under it: sand bed, kelp, shells, oysters, fish
+function EngagementShore({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 800 100" preserveAspectRatio="none" fill="none">
+      {/* Open water filling the band */}
+      <path d="M0 22 C120 14 240 28 360 20 C480 12 600 26 720 18 C760 15 780 19 800 18 L800 100 L0 100Z"
+        fill={ENG_WATER} opacity="0.16" />
+      {/* Surface chop, catching the last of the sun */}
+      <path d="M0 22 C120 14 240 28 360 20 C480 12 600 26 720 18 C760 15 780 19 800 18"
+        stroke={ENG_IVORY} strokeWidth="1.1" fill="none" opacity="0.3" />
+      <path d="M0 33 C90 25 180 39 270 31 C360 23 450 37 540 29 C630 21 710 35 800 27"
+        stroke={ENG_SUN} strokeWidth="0.8" fill="none" opacity="0.2" />
+      {/* Deeper water below */}
+      <path d="M0 44 C90 36 180 50 270 42 C360 34 450 48 540 40 C630 32 710 46 800 38 L800 100 L0 100Z"
+        fill={ENG_DEEP_WATER} opacity="0.2" />
+      {/* Sand bed */}
+      <path d="M0 74 C100 68 220 80 340 72 C460 64 580 78 700 70 C750 67 780 71 800 70 L800 100 L0 100Z"
+        fill={ENG_SAND} opacity="0.26" />
+      <path d="M0 74 C100 68 220 80 340 72 C460 64 580 78 700 70 C750 67 780 71 800 70"
+        stroke={ENG_SAND} strokeWidth="0.9" fill="none" opacity="0.34" />
+
+      {/* Kelp rooted along the bed */}
+      {([[70, 30], [104, 22], [250, 26], [286, 18], [520, 24], [700, 32], [736, 20]] as [number, number][]).map(([x, h], i) => (
+        <path key={i}
+          d={`M${x} ${76 + (i % 3)} C${x - 5} ${76 - h * 0.4} ${x + 6} ${76 - h * 0.7} ${x - 2} ${76 - h}`}
+          stroke={ENG_DEEP_GREEN} strokeWidth="2.2" fill="none"
+          opacity={0.42 - (i % 3) * 0.06} strokeLinecap="round" />
+      ))}
+      {/* Kelp fronds */}
+      {([[64, 60], [110, 62], [244, 60], [292, 64], [514, 60], [694, 58], [742, 62]] as [number, number][]).map(([x, y], i) => (
+        <ellipse key={i} cx={x} cy={y} rx="7" ry="3.4" fill={ENG_GREEN}
+          opacity={0.3 - (i % 3) * 0.05} transform={`rotate(${i % 2 ? 28 : -28} ${x} ${y})`} />
+      ))}
+
+      {/* Shells and oysters settled on the sand */}
+      <path d="M170 84 C164 82 162 77 165 74 C168 71 174 71 177 74 C180 77 178 82 170 84 Z"
+        fill={ENG_IVORY} opacity="0.4" />
+      <path d="M600 86 C594 84 592 79 595 76 C598 73 604 73 607 76 C610 79 608 84 600 86 Z"
+        fill={ENG_IVORY} opacity="0.34" />
+      <ellipse cx="392" cy="84" rx="15" ry="5" fill={ENG_DEEP_GREEN} opacity="0.34" />
+      <circle cx="392" cy="83" r="2.6" fill={ENG_IVORY} opacity="0.75" />
+      <ellipse cx="470" cy="88" rx="12" ry="4" fill={ENG_DEEP_GREEN} opacity="0.26" />
+      <circle cx="470" cy="87" r="2" fill={ENG_IVORY} opacity="0.6" />
+
+      {/* Fish mid-water */}
+      {([[210, 54, 1], [430, 48, 1], [452, 57, 0.7], [640, 52, 1], [664, 60, 0.7]] as [number, number, number][]).map(([x, y, s], i) => (
+        <g key={i} transform={`translate(${x} ${y}) scale(${s})`} opacity={0.42 - (i % 2) * 0.1}>
+          <path d="M8 0 C11 -4 18 -4 22 0 C18 4 11 4 8 0 Z" fill={ENG_CHAMPAGNE} />
+          <path d="M8 0 L2 -4 L4 0 L2 4 Z" fill={ENG_CHAMPAGNE} />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function EngagementHeroDecor() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Sunset over the water — top right */}
+      <motion.div className="absolute top-6 right-14"
+        initial={{ opacity: 0, scale: 0.5 }}
+        whileInView={{ opacity: 0.72, scale: 1 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.1, delay: 0.15, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementSunset size={130} />
+      </motion.div>
+
+      {/* The ring — upper left, the largest single element */}
+      <motion.div className="absolute top-16 left-12"
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 0.85, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.4, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementRing size={62} />
+      </motion.div>
+
+      {/* Sailboats out on the horizon */}
+      <motion.div className="absolute top-1/3 right-1/4"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.62 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.5 }}
+      >
+        <EngagementSailboat size={78} />
+      </motion.div>
+      <motion.div className="absolute top-[38%] left-1/3"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.34 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.68 }}
+      >
+        <EngagementSailboat size={48} delay={1.6} />
+      </motion.div>
+
+      {/* Diamond glints scattered like light off the stone */}
+      {([["absolute top-12 left-1/3", 0, 20], ["absolute top-32 right-1/3", 0.9, 15], ["absolute top-24 left-1/4", 1.7, 12], ["absolute top-52 right-[18%]", 2.3, 17]] as [string, number, number][]).map(([cls, d, sz], i) => (
+        <motion.div key={i} className={cls}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.7 }}
+          viewport={{ once: true, amount: 0.01 }}
+          transition={{ duration: 0.6, delay: 0.55 + i * 0.14 }}
+        >
+          <EngagementGlint size={sz} delay={d} />
+        </motion.div>
+      ))}
+
+      {/* Lush garden framing the bottom corners */}
+      <motion.div className="absolute bottom-0 left-0"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 0.5, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.0, delay: 0.28, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementFrond style={{ width: 76, height: 190 }} />
+      </motion.div>
+      <motion.div className="absolute bottom-0 left-16"
+        initial={{ opacity: 0, y: 36 }}
+        whileInView={{ opacity: 0.3, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.0, delay: 0.46, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementMonstera style={{ width: 110, height: 120 }} />
+      </motion.div>
+      <motion.div className="absolute bottom-0 right-2"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 0.44, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.0, delay: 0.36, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementFrond style={{ width: 62, height: 158, transform: "scaleX(-1)" }} />
+      </motion.div>
+      <motion.div className="absolute bottom-0 right-20"
+        initial={{ opacity: 0, y: 34 }}
+        whileInView={{ opacity: 0.26, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 1.0, delay: 0.54, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementMonstera style={{ width: 88, height: 96, transform: "scaleX(-1)" }} />
+      </motion.div>
+
+      {/* Kelp swaying up from the sea bed */}
+      <motion.div className="absolute bottom-2 left-[22%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.55 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.6 }}
+      >
+        <EngagementSeaweed size={104} delay={0.2} />
+      </motion.div>
+      <motion.div className="absolute bottom-2 left-[30%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.38 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.75 }}
+      >
+        <EngagementSeaweed size={72} delay={1.4} flip />
+      </motion.div>
+      <motion.div className="absolute bottom-2 right-[26%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.5 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.68 }}
+      >
+        <EngagementSeaweed size={92} delay={0.9} flip />
+      </motion.div>
+
+      {/* Fish drifting through the shallows */}
+      <motion.div className="absolute bottom-24 left-[42%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.5 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.8, delay: 0.85 }}
+      >
+        <EngagementFish size={30} delay={0.3} drift={52} />
+      </motion.div>
+      <motion.div className="absolute bottom-16 left-[52%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.34 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.8, delay: 0.95 }}
+      >
+        <EngagementFish size={20} delay={1.5} drift={38} />
+      </motion.div>
+      <motion.div className="absolute bottom-28 right-[34%]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.4 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.8, delay: 1.05 }}
+      >
+        <EngagementFish size={24} delay={2.2} drift={44} />
+      </motion.div>
+
+      {/* Shells and an oyster on the bottom */}
+      <motion.div className="absolute bottom-6 left-[46%]">
+        <EngagementOyster size={38} delay={1.0} />
+      </motion.div>
+      <motion.div className="absolute bottom-8 left-[38%]">
+        <EngagementShell size={26} delay={1.15} />
+      </motion.div>
+      <motion.div className="absolute bottom-5 right-[40%]">
+        <EngagementShell size={20} delay={1.3} />
+      </motion.div>
+
+      {/* Waterline, sea bed and everything under it across the bottom */}
+      <motion.div className="absolute bottom-0 left-0 right-0"
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.01 }}
+        transition={{ duration: 0.9, delay: 0.1, ease: [0.25, 0, 0, 1] }}
+      >
+        <EngagementShore className="w-full" />
       </motion.div>
     </div>
   );
@@ -1855,12 +2384,13 @@ function DallasHeroDecor() {
 
 // ─── Shared divider router ─────────────────────────────────────────────────────
 
-type DividerType = "wave" | "rope" | "spark" | "skyline";
+type DividerType = "wave" | "rope" | "spark" | "skyline" | "sail";
 
 function ThemeDivider({ color, type, strong = false }: { color: string; type: DividerType; strong?: boolean }) {
   if (type === "wave") return <WaveDivider color={color} strong={strong} />;
   if (type === "spark") return <SparkDivider color={color} strong={strong} />;
   if (type === "skyline") return <SkylineDivider color={color} strong={strong} />;
+  if (type === "sail") return <SailDivider color={color} strong={strong} />;
   return <RopeDivider color={color} strong={strong} />;
 }
 
@@ -1974,6 +2504,19 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     navBg: "rgba(18,3,9,0.94)", dropdownBg: "rgba(18,3,9,0.97)",
     sectionBg: "linear-gradient(to bottom, #120309, #180610)",
     descTextColor: "#fbcfe8", dividerType: "wave",
+  },
+  engagement: {
+    accentColor: "#E8C39E", accentSecondary: "#6BBF8E",
+    pageBg: "#0d1410",
+    heroBg: "linear-gradient(to bottom right, #17251c, #0d1410)",
+    descBg: "linear-gradient(to bottom, #0d1410, #121b15, #0d1410)",
+    galleryBg: "linear-gradient(to bottom, #0d1410 0%, #121b15 50%, #0d1410 100%)",
+    heroOverlayGradient: "linear-gradient(to bottom, rgba(13,20,16,0.32) 0%, rgba(13,20,16,0.08) 35%, rgba(13,20,16,0.82) 78%, rgba(13,20,16,1) 100%)",
+    ambientGlow: "radial-gradient(ellipse 130% 55% at 50% 0%, rgba(232,195,158,0.12) 0%, transparent 55%)",
+    galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(232,195,158,0.05) 0%, transparent 65%)",
+    navBg: "rgba(13,20,16,0.94)", dropdownBg: "rgba(13,20,16,0.97)",
+    sectionBg: "linear-gradient(to bottom, #0d1410, #121b15)",
+    descTextColor: "#f2e3d0", dividerType: "sail",
   },
   frontier: {
     accentColor: "#A07850", accentSecondary: "#4A5E3A",
@@ -2301,6 +2844,13 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
       </div>
     );
   }
+  if (decorative === "engagement") {
+    return (
+      <div className="w-full pointer-events-none" style={{ height: 110 }}>
+        <EngagementShore className="w-full h-full" />
+      </div>
+    );
+  }
   if (decorative === "romantic") {
     return (
       <div className="w-full pointer-events-none" style={{ height: 90 }}>
@@ -2555,6 +3105,7 @@ export default function ChapterPageClient({ chapter }: Props) {
   const isWestern = chapter.theme.decorative === "western";
   const isCoastal = chapter.theme.decorative === "coastal";
   const isRomantic = chapter.theme.decorative === "romantic";
+  const isEngagement = chapter.theme.decorative === "engagement";
   const isFrontier = chapter.theme.decorative === "frontier";
   const isWild = chapter.theme.decorative === "wild";
   const isStudio = chapter.theme.decorative === "studio";
@@ -2573,7 +3124,6 @@ export default function ChapterPageClient({ chapter }: Props) {
     navBg,
     dropdownBg,
     sectionBg,
-    descTextColor,
     dividerType,
   } = tc;
 
@@ -2657,6 +3207,7 @@ export default function ChapterPageClient({ chapter }: Props) {
           {showDecor && isSkyline && <HoustonSkylineHeroDecor />}
           {showDecor && isCoastal && <CoastalHeroDecor />}
           {showDecor && isRomantic && <RomanticHeroDecor />}
+          {showDecor && isEngagement && <EngagementHeroDecor />}
           {showDecor && isFrontier && <FrontierHeroDecor />}
           {showDecor && isWild && <WildHeroDecor />}
           {showDecor && isStudio && <StudioHeroDecor />}
@@ -3034,18 +3585,6 @@ export default function ChapterPageClient({ chapter }: Props) {
               transition={{ duration: 0.5, delay: 0.1 }}
             />
           </div>
-
-          <p
-            style={{
-              fontFamily: "var(--font-caveat)",
-              color: descTextColor,
-              fontSize: 23,
-              lineHeight: 1.7,
-              opacity: 0.85,
-            }}
-          >
-            {chapter.description}
-          </p>
 
           {/* Info chips — stagger in */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-10">

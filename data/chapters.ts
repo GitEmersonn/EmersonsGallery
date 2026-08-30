@@ -14,7 +14,7 @@ export interface ChapterTheme {
   bgClass: string;
   borderClass: string;
   textAccentClass: string;
-  decorative: "tropical" | "ranch" | "nightlife" | "skyline" | "western" | "coastal" | "romantic" | "frontier" | "wild" | "studio" | "none";
+  decorative: "tropical" | "ranch" | "nightlife" | "skyline" | "western" | "coastal" | "romantic" | "engagement" | "frontier" | "wild" | "studio" | "none";
   tagline: string;
 }
 
@@ -385,6 +385,60 @@ export const chapters: Chapter[] = [
     ],
   },
   {
+    id: "wyatt-georgia-engagement",
+    slug: "wyatt-georgia-engagement",
+    title: "Wyatt & Georgia's Engagement",
+    subtitle: "A Key West Engagement Session",
+    location: "Key West, Florida",
+    date: "2026",
+    description:
+      "Key West before the aisle — plumbago and palm along the clapboard lanes, then barefoot on the sand as the sun goes down over the Gulf, a new ring catching the last of the light.",
+    theme: {
+      primaryColor: "#E8C39E",
+      accentColor: "#6BBF8E",
+      bgClass: "bg-emerald-950",
+      borderClass: "border-amber-300",
+      textAccentClass: "text-amber-200",
+      decorative: "engagement",
+      tagline: "She Said Yes",
+    },
+    coverPosition: "center 20%",
+    coverPhoto: {
+      id: "wge-cover",
+      src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815648/IMG_5542_VSCO_eqdx4a.jpg",
+      alt: "Wyatt & Georgia — Key West Engagement",
+      width: 4000,
+      height: 6000,
+      orientation: "portrait",
+    },
+    photos: [
+      // The garden session through town, then out to the water for golden hour
+      { id: "wge-1", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816672/IMG_5743_oxshpm.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-2", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816664/IMG_5786_bffoz5.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 3115, height: 4673, orientation: "portrait" },
+      { id: "wge-3", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816673/IMG_5797_ajsuib.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-4", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816672/IMG_5829_qswl5k.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-5", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816673/IMG_5837_ob7cgt.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-6", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816671/IMG_5843_qxku4i.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-7", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816665/IMG_5851_k1twvs.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 2547, height: 3821, orientation: "portrait" },
+      { id: "wge-8", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816675/IMG_5864_qc3yep.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 5304, height: 3536, orientation: "landscape" },
+      { id: "wge-9", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816676/IMG_5893_wtft7t.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-10", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816677/IMG_6040_cmrrvc.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-11", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816677/IMG_6045_kivzwc.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-12", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787816672/IMG_6048_wpwfum.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-13", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815650/0F7893E5-1E63-42CF-B967-1099D5306313_zbvxf6.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-14", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815649/5025F539-C363-499C-8877-FB32761E5F40_jbwsck.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-15", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815647/655AB691-D10C-4AAE-B793-094302AF2BDC_wyalf6.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-16", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815645/71E88C5C-69E2-4265-A65C-0DC465186A2F_dgpnup.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-17", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815643/9F80E9A9-5359-4829-AB43-C4DB791EBF1F_ceomf3.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-18", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815646/A6CE7DAD-0E74-404D-811A-419C03F47086_kogjly.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-19", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815647/BC157697-EDDD-4D3F-937A-732742ED1579_syz2l6.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-20", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815648/F8BFACD2-06B4-43EC-B67D-57635AAE1654_zxyqhy.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-21", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815649/IMG_5213_VSCO_fwmdjo.jpg", alt: "Wyatt & Georgia — Key West Engagement", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-22", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815644/37BEEC56-617B-4164-A0B1-609DCEDF54AC_ulsr4j.jpg", alt: "Wyatt & Georgia — the ring, Key West", width: 4000, height: 6000, orientation: "portrait" },
+      { id: "wge-23", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1787815648/IMG_5542_VSCO_eqdx4a.jpg", alt: "Wyatt & Georgia — sunset over the Gulf", width: 4000, height: 6000, orientation: "portrait" },
+    ],
+  },
+  {
     id: "wharton-texas",
     slug: "wharton-texas",
     title: "Wharton, Texas",
@@ -748,6 +802,7 @@ export const chapters: Chapter[] = [
       height: 6000,
       orientation: "portrait",
     },
+    coverVideo: "https://res.cloudinary.com/dfw5pobin/video/upload/v1787815003/ella_and_leo_beahc_background_footage_nwkkii.mp4",
     photos: [
       { id: "el-1", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782022469/Ella_and_Leo_kite__03_lxuxtg.jpg", alt: "Ella & Leo — Galveston", width: 4000, height: 6000, orientation: "portrait" },
       { id: "el-2", src: "https://res.cloudinary.com/dfw5pobin/image/upload/v1782022469/Ella_and_Leo_kite__04_t3qfj3.jpg", alt: "Ella & Leo — Galveston", width: 3715, height: 5573, orientation: "portrait" },
