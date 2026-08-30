@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import { chapters } from "@/data/chapters";
 import type { Chapter } from "@/data/chapters";
-import ChapterCard from "@/components/ChapterCard";
+import ChapterFilmstrip from "@/components/ChapterFilmstrip";
 import BookingForm from "@/components/BookingForm";
 
 // ─── Aperture Logo — reveal + passive animation ───────────────────────────────
@@ -288,12 +288,29 @@ const HERO_SLIDES: { src: string; alt: string; position: string }[] = [
   },
 ];
 
+/** Fisher–Yates over the slide indices. Client-only — see the effect below. */
+function shuffledOrder(n: number): number[] {
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
   const [bgChapter, setBgChapter] = useState<Chapter | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
-  const [heroSlide, setHeroSlide] = useState(0);
+  // `heroOrder` is the running order of HERO_SLIDES; `heroPos` is where we are
+  // in it. Splitting the two lets the order be reshuffled without disturbing
+  // the crossfade or the indicator dots.
+  const [heroOrder, setHeroOrder] = useState<number[]>(() =>
+    HERO_SLIDES.map((_, i) => i)
+  );
+  const [heroPos, setHeroPos] = useState(0);
+  const heroSlide = heroOrder[heroPos] ?? 0;
 
   useEffect(() => {
     const visited = sessionStorage.getItem("eg-intro");
@@ -303,10 +320,18 @@ export default function HomePage() {
     }
   }, []);
 
-  // Slowly crossfade through the curated frames
+  // Shuffle the running order once we're on the client. It cannot happen during
+  // render or in a lazy initialiser: the server and the first client render
+  // have to produce identical markup, and Math.random() would break that.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only randomness, runs once
+    setHeroOrder(shuffledOrder(HERO_SLIDES.length));
+  }, []);
+
+  // Slowly crossfade through the curated frames, in whatever order we drew
   useEffect(() => {
     const id = setInterval(() => {
-      setHeroSlide((i) => (i + 1) % HERO_SLIDES.length);
+      setHeroPos((p) => (p + 1) % HERO_SLIDES.length);
     }, 6500);
     return () => clearInterval(id);
   }, []);
@@ -566,12 +591,12 @@ export default function HomePage() {
                 key={i}
                 type="button"
                 aria-label={`View frame ${i + 1}`}
-                onClick={() => setHeroSlide(i)}
+                onClick={() => setHeroPos(i)}
                 className="rounded-full"
                 style={{
-                  width: i === heroSlide ? 22 : 6,
+                  width: i === heroPos ? 22 : 6,
                   height: 6,
-                  background: i === heroSlide ? "#d4a017" : "rgba(212,160,23,0.35)",
+                  background: i === heroPos ? "#d4a017" : "rgba(212,160,23,0.35)",
                   transition: "width 0.5s ease, background 0.5s ease",
                   cursor: "pointer",
                 }}
@@ -639,30 +664,13 @@ export default function HomePage() {
             <GoldDivider />
           </motion.div>
 
-          <motion.div
-            className="flex flex-wrap justify-center gap-10 md:gap-20 py-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-            variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          >
-            {chapters.map((chapter, i) => (
-              <motion.div
-                key={chapter.id}
-                variants={{
-                  hidden: { opacity: 0, y: 40, scale: 0.96 },
-                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.25, 0, 0, 1] } },
-                }}
-              >
-                <ChapterCard
-                  chapter={chapter}
-                  index={i}
-                  onHover={() => setBgChapter(chapter)}
-                  onLeave={() => setBgChapter(null)}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="py-8">
+            <ChapterFilmstrip
+              chapters={chapters}
+              onHoverChapter={(chapter) => setBgChapter(chapter)}
+              onLeaveChapter={() => setBgChapter(null)}
+            />
+          </div>
 
           <motion.div
             className="mt-20 text-center"
