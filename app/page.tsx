@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import { chapters } from "@/data/chapters";
 import type { Chapter } from "@/data/chapters";
-import ChapterFilmstrip from "@/components/ChapterFilmstrip";
+import ChapterAlbum from "@/components/ChapterAlbum";
 import BookingForm from "@/components/BookingForm";
 import { usePerfMode } from "@/hooks/usePerfMode";
 
@@ -680,13 +680,13 @@ export default function HomePage() {
               className="mt-3 opacity-60"
               style={{ fontFamily: "var(--font-caveat)", color: "#c4a882", fontSize: 21 }}
             >
-              Click to open a chapter
+              Open any page to see the whole set
             </p>
             <GoldDivider />
           </motion.div>
 
           <div className="py-8">
-            <ChapterFilmstrip
+            <ChapterAlbum
               chapters={chapters}
               onHoverChapter={(chapter) => setBgChapter(chapter)}
               onLeaveChapter={() => setBgChapter(null)}
