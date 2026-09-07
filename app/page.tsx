@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import {
   motion,
   AnimatePresence,
@@ -14,6 +14,7 @@ import { chapters } from "@/data/chapters";
 import type { Chapter } from "@/data/chapters";
 import ChapterFilmstrip from "@/components/ChapterFilmstrip";
 import BookingForm from "@/components/BookingForm";
+import { usePerfMode } from "@/hooks/usePerfMode";
 
 // ─── Aperture Logo — reveal + passive animation ───────────────────────────────
 function ApertureLogo({
@@ -312,6 +313,14 @@ export default function HomePage() {
   const [heroPos, setHeroPos] = useState(0);
   const heroSlide = heroOrder[heroPos] ?? 0;
 
+  // Outgoing, current and next — the only slides worth having in the DOM.
+  const mountedSlides = useMemo(() => {
+    const n = HERO_SLIDES.length;
+    return new Set(
+      [heroPos - 1, heroPos, heroPos + 1].map((p) => heroOrder[(p + n) % n] ?? 0)
+    );
+  }, [heroOrder, heroPos]);
+
   useEffect(() => {
     const visited = sessionStorage.getItem("eg-intro");
     if (!visited) {
@@ -335,12 +344,18 @@ export default function HomePage() {
     }, 6500);
     return () => clearInterval(id);
   }, []);
+  // Scroll-linked parallax runs a transform on the main thread for every scroll
+  // frame. That is affordable on a desktop and expensive on a phone, which is
+  // where scrolling already feels heaviest — so lite devices get static values.
+  const lite = usePerfMode();
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 500], [0, -70]);
-  const heroOpacity = useTransform(scrollY, [0, 380], [1, 0]);
+  const heroYRaw = useTransform(scrollY, [0, 500], [0, -70]);
+  const heroOpacityRaw = useTransform(scrollY, [0, 380], [1, 0]);
+  const heroY = lite ? 0 : heroYRaw;
+  const heroOpacity = lite ? 1 : heroOpacityRaw;
 
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ position: "relative" }}>
+    <div className="min-h-screen overflow-x-clip" style={{ position: "relative" }}>
       {/* ─── ANIMATED GRADIENT BACKGROUND ─────────────── */}
       <div className="page-bg-gradient fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
       {/* ─── CHAPTER HOVER BACKGROUND ─────────────────── */}
@@ -377,27 +392,33 @@ export default function HomePage() {
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ y: heroY, zIndex: 1 }}
       >
-        {/* ── Full-bleed cinematic photography — crossfades through curated frames ── */}
+        {/* ── Full-bleed cinematic photography — crossfades through curated frames ──
+            Only three slides are mounted: the one fading out, the one showing,
+            and the next one (warmed early so its crossfade never starts on a
+            blank frame). Mounting all six downloaded every hero image on first
+            paint, since they all sit inside the viewport. */}
         <div className="absolute inset-0 overflow-hidden">
-          {HERO_SLIDES.map((slide, i) => (
-            <motion.div
-              key={slide.src}
-              className="absolute inset-0"
-              initial={false}
-              animate={{ opacity: i === heroSlide ? 1 : 0 }}
-              transition={{ duration: 1.6, ease: "easeInOut" }}
-            >
-              <Image
-                src={slide.src}
-                alt={slide.alt}
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className="object-cover"
-                style={{ objectPosition: slide.position }}
-              />
-            </motion.div>
-          ))}
+          {HERO_SLIDES.map((slide, i) =>
+            mountedSlides.has(i) ? (
+              <motion.div
+                key={slide.src}
+                className="absolute inset-0"
+                initial={false}
+                animate={{ opacity: i === heroSlide ? 1 : 0 }}
+                transition={{ duration: 1.6, ease: "easeInOut" }}
+              >
+                <Image
+                  src={slide.src}
+                  alt={slide.alt}
+                  fill
+                  priority={i === heroOrder[0]}
+                  sizes="100vw"
+                  className="object-cover"
+                  style={{ objectPosition: slide.position }}
+                />
+              </motion.div>
+            ) : null
+          )}
         </div>
 
         {/* Legibility + brand scrim: darkens top & bottom, keeps the photo lit
@@ -723,7 +744,7 @@ export default function HomePage() {
 
       {/* ─── EQUIPMENT ─────────────────────────────────── */}
       <motion.section
-        className="relative py-24 md:py-32"
+        className="relative py-24 md:py-32 cv-auto"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.06 }}
