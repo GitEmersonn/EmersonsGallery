@@ -489,487 +489,11 @@ function WhartonHeroDecor() {
 
 // ─── Night City SVG elements ──────────────────────────────────────────────────
 
-const NIGHT_BUILDINGS: [number, number, number, number][] = [
-  [0, 78, 55, 52], [50, 60, 45, 70], [90, 72, 38, 58],
-  [125, 42, 55, 88], [175, 65, 42, 65], [212, 48, 65, 82],
-  [272, 70, 38, 60], [305, 38, 75, 92], [375, 62, 45, 68],
-  [415, 50, 60, 80], [470, 74, 40, 56], [505, 44, 68, 86],
-  [568, 68, 42, 62], [605, 52, 55, 78], [655, 76, 38, 54],
-  [688, 60, 48, 70], [730, 48, 70, 82],
-];
 
-const NIGHT_WINDOWS: [number, number, number, number, number][] = [
-  [132, 50, 5, 7, 0.65], [144, 50, 5, 7, 0.5], [156, 50, 5, 7, 0.6], [168, 50, 5, 7, 0.4],
-  [132, 63, 5, 7, 0.5], [156, 63, 5, 7, 0.65], [168, 63, 5, 7, 0.45],
-  [132, 76, 5, 7, 0.6], [144, 76, 5, 7, 0.5], [168, 76, 5, 7, 0.55],
-  [220, 55, 6, 8, 0.6], [232, 55, 6, 8, 0.5], [252, 55, 6, 8, 0.65], [264, 55, 6, 8, 0.45],
-  [220, 70, 6, 8, 0.5], [244, 70, 6, 8, 0.6], [264, 70, 6, 8, 0.55],
-  [313, 46, 7, 9, 0.7], [326, 46, 7, 9, 0.55], [346, 46, 7, 9, 0.6], [359, 46, 7, 9, 0.5],
-  [313, 62, 7, 9, 0.5], [339, 62, 7, 9, 0.65], [359, 62, 7, 9, 0.45],
-  [326, 78, 7, 9, 0.55], [359, 78, 7, 9, 0.6],
-  [422, 58, 6, 8, 0.6], [434, 58, 6, 8, 0.45], [454, 58, 6, 8, 0.65], [466, 58, 6, 8, 0.5],
-  [422, 73, 6, 8, 0.55], [454, 73, 6, 8, 0.6],
-  [513, 52, 6, 8, 0.65], [525, 52, 6, 8, 0.5], [547, 52, 6, 8, 0.6], [559, 52, 6, 8, 0.45],
-  [513, 68, 6, 8, 0.5], [547, 68, 6, 8, 0.65], [559, 68, 6, 8, 0.55],
-  [612, 60, 5, 7, 0.6], [623, 60, 5, 7, 0.5], [643, 60, 5, 7, 0.65],
-  [612, 73, 5, 7, 0.45], [635, 73, 5, 7, 0.6],
-];
-
-function NightCitySkyline({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 800 130" preserveAspectRatio="none" fill="none">
-      <rect x="0" y="95" width="800" height="35" fill="#9333ea" opacity="0.07" />
-      {NIGHT_BUILDINGS.map(([x, y, w, h], i) => (
-        <rect key={i} x={x} y={y} width={w} height={h} fill="#0d0020" opacity={0.68 + (i % 3) * 0.04} />
-      ))}
-      <line x1="343" y1="38" x2="343" y2="20" stroke="#1a0030" strokeWidth="2" opacity="0.85" />
-      <circle cx="343" cy="19" r="2.5" fill="#a855f7" opacity="0.75" />
-      <line x1="539" y1="44" x2="539" y2="26" stroke="#1a0030" strokeWidth="2" opacity="0.85" />
-      <circle cx="539" cy="25" r="2" fill="#9333ea" opacity="0.65" />
-      {NIGHT_WINDOWS.map(([x, y, w, h, op], i) => (
-        <rect key={i} x={x} y={y} width={w} height={h} fill="#e8c547" opacity={op} rx="0.5" />
-      ))}
-    </svg>
-  );
-}
-
-function NightChampagne({
-  className = "",
-  size = 60,
-}: {
-  className?: string;
-  size?: number;
-}) {
-  const bubbles: [number, number, number][] = [
-    [25, 52, 0], [23, 50, 0.55], [27, 53, 1.2], [24, 48, 0.3], [26, 51, 0.9],
-  ];
-  return (
-    <motion.div
-      className={className}
-      style={{ width: size, height: size * 2 }}
-      animate={{ y: [0, -8, 0] }}
-      transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <motion.svg
-        viewBox="0 0 50 100"
-        width={size}
-        height={size * 2}
-        fill="none"
-        initial={{ scale: 0, opacity: 0, rotate: -12 }}
-        whileInView={{ scale: 1, opacity: 1, rotate: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        style={{ transformOrigin: "25px 90px" }}
-      >
-        {/* Glass body */}
-        <path
-          d="M 12 8 L 38 8 L 30 50 L 28 55 L 22 55 L 20 50 Z"
-          fill="#a855f7"
-          fillOpacity="0.1"
-          stroke="#a855f7"
-          strokeWidth="1.2"
-          strokeOpacity="0.55"
-        />
-        {/* Champagne fill */}
-        <path
-          d="M 21 47 L 29 47 L 30 50 L 28 55 L 22 55 L 20 50 Z"
-          fill="#e8c547"
-          fillOpacity="0.28"
-        />
-        {/* Shine */}
-        <line x1="15" y1="12" x2="18" y2="46" stroke="white" strokeWidth="1" strokeOpacity="0.18" />
-        {/* Stem */}
-        <line x1="25" y1="55" x2="25" y2="82" stroke="#a855f7" strokeWidth="1.5" strokeOpacity="0.45" />
-        {/* Base */}
-        <line x1="13" y1="82" x2="37" y2="82" stroke="#a855f7" strokeWidth="1.5" strokeOpacity="0.45" />
-        {/* Bubbles */}
-        {bubbles.map(([cx, startY, delay], i) => (
-          <motion.circle
-            key={i}
-            cx={cx}
-            r={1.2}
-            fill="#e8c547"
-            animate={{ cy: [startY, 12], opacity: [0.75, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay, ease: "easeOut" }}
-          />
-        ))}
-      </motion.svg>
-    </motion.div>
-  );
-}
-
-function NightSparkle({
-  className = "",
-  size = 36,
-  color = "#a855f7",
-}: {
-  className?: string;
-  size?: number;
-  color?: string;
-}) {
-  return (
-    <motion.div
-      className={className}
-      style={{ width: size, height: size }}
-      animate={{ rotate: [0, 360], scale: [1, 1.18, 1] }}
-      transition={{
-        rotate: { duration: 12, repeat: Infinity, ease: "linear" },
-        scale: { duration: 3.8, repeat: Infinity, ease: "easeInOut" },
-      }}
-    >
-      <motion.svg
-        viewBox="0 0 40 40"
-        width={size}
-        height={size}
-        fill="none"
-        initial={{ scale: 0, rotate: -90, opacity: 0 }}
-        whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ type: "spring", stiffness: 250, damping: 14 }}
-        style={{ transformOrigin: "20px 20px" }}
-      >
-        <path d="M20 2 L22 18 L38 20 L22 22 L20 38 L18 22 L2 20 L18 18 Z" fill={color} opacity="0.9" />
-        <path d="M20 9 L21 19 L31 20 L21 21 L20 31 L19 21 L9 20 L19 19 Z" fill="white" opacity="0.22" />
-      </motion.svg>
-    </motion.div>
-  );
-}
-
-function NightMoon({ className = "" }: { className?: string }) {
-  return (
-    <motion.div
-      className={className}
-      animate={{ scale: [1, 1.05, 1], opacity: [0.7, 0.9, 0.7] }}
-      transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <motion.svg
-        width="54" height="54" viewBox="0 0 54 54" fill="none"
-        initial={{ scale: 0.4, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 1.2, ease: [0.25, 0, 0, 1], delay: 0.4 }}
-        style={{ transformOrigin: "27px 27px" }}
-      >
-        <path
-          d="M34 8 C20 8 10 17 10 28 C10 39 20 48 34 48 C25 44 18 37 18 28 C18 19 25 12 34 8 Z"
-          fill="#e8c547"
-          opacity="0.75"
-        />
-        <circle cx="42" cy="11" r="1.8" fill="#e8c547" opacity="0.55" />
-        <circle cx="40" cy="22" r="1.1" fill="#a855f7" opacity="0.65" />
-        <circle cx="47" cy="17" r="1.1" fill="#e8c547" opacity="0.45" />
-      </motion.svg>
-    </motion.div>
-  );
-}
-
-function NightCityHeroDecor() {
-  const starPositions: [number, number, number, string][] = [
-    [160, 22, 9, "#a855f7"],
-    [290, 44, 7, "#e8c547"],
-    [470, 18, 11, "#a855f7"],
-    [610, 38, 7, "#e8c547"],
-    [710, 28, 9, "#a855f7"],
-  ];
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Moon */}
-      <motion.div
-        className="absolute top-12 right-16"
-        initial={{ opacity: 0, scale: 0.6 }}
-        whileInView={{ opacity: 0.7, scale: 1 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0, 0, 1] }}
-      >
-        <NightMoon />
-      </motion.div>
-
-      {/* Stars / sparkles scattered */}
-      {starPositions.map(([right, top, size, color], i) => (
-        <motion.div
-          key={i}
-          className="absolute"
-          style={{ right, top }}
-          initial={{ opacity: 0, scale: 0 }}
-          whileInView={{ opacity: 0.45 + (i % 3) * 0.12, scale: 1 }}
-          viewport={{ once: true, amount: 0.01 }}
-          transition={{ duration: 0.55, delay: 0.28 + i * 0.1 }}
-        >
-          <NightSparkle size={size} color={color} />
-        </motion.div>
-      ))}
-
-      {/* Champagne glass — left */}
-      <motion.div
-        className="absolute bottom-16 left-8"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 0.55, y: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 0.9, delay: 0.55, ease: [0.25, 0, 0, 1] }}
-      >
-        <NightChampagne size={44} />
-      </motion.div>
-
-      {/* Champagne glass — right, smaller */}
-      <motion.div
-        className="absolute bottom-20 right-10"
-        initial={{ opacity: 0, y: 25 }}
-        whileInView={{ opacity: 0.38, y: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 0.9, delay: 0.7, ease: [0.25, 0, 0, 1] }}
-      >
-        <NightChampagne size={30} />
-      </motion.div>
-
-      {/* City skyline — rises from bottom */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0"
-        initial={{ opacity: 0, y: 22 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 1.0, delay: 0.1, ease: [0.25, 0, 0, 1] }}
-      >
-        <NightCitySkyline className="w-full" />
-      </motion.div>
-    </div>
-  );
-}
 
 // ─── Houston Skyline SVG elements ─────────────────────────────────────────────
 
-function CityGlare({ size = 70 }: { size?: number }) {
-  const cx = size / 2, cy = size / 2;
-  return (
-    <motion.svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none"
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.2 }}
-    >
-      {/* Pulsing glow rings */}
-      <motion.circle cx={cx} cy={cy} r={size * 0.47} stroke="#facc15" strokeWidth="0.6" opacity="0.18"
-        animate={{ scale: [1, 1.18, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
-      <motion.circle cx={cx} cy={cy} r={size * 0.36} stroke="#facc15" strokeWidth="1" opacity="0.28"
-        animate={{ scale: [1, 1.12, 1] }} transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }} />
-      {/* Rotating rays */}
-      <motion.g animate={{ rotate: 360 }} transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-        style={{ transformOrigin: `${cx}px ${cy}px` }}
-      >
-        {Array.from({ length: 12 }).map((_, i) => {
-          const a = (i * 30 * Math.PI) / 180;
-          const short = i % 3 === 1;
-          const r1 = size * 0.26, r2 = short ? size * 0.35 : size * 0.44;
-          return <line key={i}
-            x1={cx + Math.cos(a) * r1} y1={cy + Math.sin(a) * r1}
-            x2={cx + Math.cos(a) * r2} y2={cy + Math.sin(a) * r2}
-            stroke="#facc15" strokeWidth={short ? 1 : 1.8} strokeLinecap="round"
-            opacity={short ? 0.45 : 0.75} />;
-        })}
-      </motion.g>
-      {/* Lens flare streak */}
-      <line x1={cx - size * 0.44} y1={cy} x2={cx + size * 0.44} y2={cy}
-        stroke="#facc15" strokeWidth="0.8" opacity="0.2" />
-      {/* Core */}
-      <motion.circle cx={cx} cy={cy} r={size * 0.16} fill="#facc15" opacity="0.9"
-        animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
-      <circle cx={cx} cy={cy} r={size * 0.08} fill="white" opacity="0.95" />
-    </motion.svg>
-  );
-}
 
-function CityTaxi({ size = 88 }: { size?: number }) {
-  const h = size * 0.52;
-  return (
-    <motion.svg width={size} height={h} viewBox="0 0 88 46" fill="none"
-      initial={{ opacity: 0, x: -50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ type: "spring", stiffness: 100, damping: 16, delay: 0.4 }}
-    >
-      <motion.g animate={{ x: [0, 3, 0, -2, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
-        {/* Body */}
-        <rect x="5" y="20" width="78" height="18" rx="3" fill="#facc15" opacity="0.88" />
-        {/* Passenger compartment */}
-        <path d="M19 20 L24 10 L64 10 L69 20Z" fill="#facc15" opacity="0.78" />
-        {/* Windows */}
-        <rect x="25" y="11" width="13" height="8" rx="1" fill="#bae6fd" opacity="0.72" />
-        <rect x="41" y="11" width="13" height="8" rx="1" fill="#bae6fd" opacity="0.72" />
-        {/* Taxi light on roof */}
-        <rect x="37" y="6" width="14" height="5" rx="1" fill="#fef9c3" opacity="0.95" />
-        {/* Checkered stripe */}
-        {Array.from({ length: 14 }).map((_, i) => (
-          <rect key={i} x={12 + i * 4} y="27" width="4" height="3"
-            fill={i % 2 === 0 ? "#1e293b" : "#facc15"} opacity="0.55" />
-        ))}
-        {/* Wheels */}
-        <circle cx="22" cy="39" r="6" fill="#0f172a" opacity="0.85" />
-        <circle cx="22" cy="39" r="3" fill="#334155" opacity="0.7" />
-        <circle cx="66" cy="39" r="6" fill="#0f172a" opacity="0.85" />
-        <circle cx="66" cy="39" r="3" fill="#334155" opacity="0.7" />
-        {/* Bumpers */}
-        <rect x="2" y="28" width="6" height="8" rx="2" fill="#facc15" opacity="0.55" />
-        <rect x="80" y="28" width="6" height="8" rx="2" fill="#facc15" opacity="0.55" />
-      </motion.g>
-    </motion.svg>
-  );
-}
-
-// Deterministic lit-window pattern for glass towers
-const GLASS_WIN_LIT = [
-  true,false,true,false,false,true,false,true,
-  false,true,false,true,true,false,true,false,
-  true,true,false,false,true,false,true,false,
-  false,false,true,false,false,true,false,true,
-  true,false,false,true,true,false,false,true,
-  false,true,true,false,false,true,true,false,
-  true,false,true,false,true,true,false,false,
-  false,true,false,true,false,false,true,true,
-];
-
-// [x, w, h] for each tower
-const GLASS_TOWERS: [number, number, number][] = [
-  [0, 32, 95],  [34, 22, 130], [58, 38, 108],
-  [98, 28, 158],[128, 46, 138],[176, 24, 172],
-  [202, 40, 148],[244, 26, 162],[272, 36, 118],
-  [310, 20, 140],[332, 32, 100],
-];
-
-function GlassSkyline() {
-  const H = 180;
-  const [lit, setLit] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    // Build list of flickering window keys with their initial states
-    const windows: { key: string; initial: boolean }[] = [];
-    GLASS_TOWERS.forEach(([, w, h], ti) => {
-      const cols = Math.max(2, Math.floor(w / 10));
-      const rows = Math.floor((h - 10) / 13);
-      Array.from({ length: rows }).forEach((_, row) => {
-        Array.from({ length: cols }).forEach((_, col) => {
-          const winIdx = ti * 7 + row * cols + col;
-          if ((winIdx * 3 + ti * 5) % 10 < 3) {
-            windows.push({ key: `${ti}-${row}-${col}`, initial: GLASS_WIN_LIT[winIdx % GLASS_WIN_LIT.length] });
-          }
-        });
-      });
-    });
-
-    // Initialise state
-    const init: Record<string, boolean> = {};
-    windows.forEach(({ key, initial }) => { init[key] = initial; });
-    setLit(init);
-
-    // Each window toggles on its own random interval
-    const timers = windows.map(({ key }) => {
-      let t: ReturnType<typeof setTimeout>;
-      const schedule = () => {
-        t = setTimeout(() => {
-          setLit(prev => ({ ...prev, [key]: !prev[key] }));
-          schedule();
-        }, 4000 + Math.floor(Math.random() * 10000));
-      };
-      // Stagger start so they don't all fire together
-      const startDelay = setTimeout(schedule, Math.floor(Math.random() * 6000));
-      return () => { clearTimeout(t); clearTimeout(startDelay); };
-    });
-
-    return () => timers.forEach(cancel => cancel());
-  }, []);
-
-  return (
-    <svg width="364" height={H} viewBox={`0 0 364 ${H}`} fill="none">
-      <defs>
-        <filter id="win-glow" x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-      {GLASS_TOWERS.map(([x, w, h], ti) => {
-        const y = H - h;
-        const cols = Math.max(2, Math.floor(w / 10));
-        const rows = Math.floor((h - 10) / 13);
-        const colW = (w - 6) / cols;
-        return (
-          <g key={ti}>
-            <rect x={x} y={y} width={w} height={h} fill="#38bdf8" opacity="0.14" />
-            <rect x={x + 4} y={y - 8} width={w - 8} height={10} fill="#38bdf8" opacity="0.17" />
-            <rect x={x + 8} y={y - 15} width={w - 16} height={9} fill="#38bdf8" opacity="0.2" />
-            {Array.from({ length: rows }).map((_, row) =>
-              Array.from({ length: cols }).map((_, col) => {
-                const winIdx = ti * 7 + row * cols + col;
-                const idx = winIdx % GLASS_WIN_LIT.length;
-                const flickerKey = `${ti}-${row}-${col}`;
-                const flickers = (winIdx * 3 + ti * 5) % 10 < 3;
-                const isLit = flickers ? (lit[flickerKey] ?? GLASS_WIN_LIT[idx]) : GLASS_WIN_LIT[idx];
-                return (
-                  <rect key={flickerKey}
-                    x={x + 3 + col * colW} y={y + 5 + row * 13}
-                    width={colW - 2} height={10}
-                    fill={isLit ? "#facc15" : "#38bdf8"}
-                    opacity={isLit ? 0.6 : 0.28}
-                    filter={isLit ? "url(#win-glow)" : undefined}
-                  />
-                );
-              })
-            )}
-          </g>
-        );
-      })}
-      <line x1="188" y1="8" x2="188" y2="0" stroke="#38bdf8" strokeWidth="1.5" opacity="0.55" />
-      <motion.circle cx="188" cy="0" r="2" fill="#facc15"
-        animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }} />
-      <line x1="0" y1={H - 1} x2="364" y2={H - 1} stroke="#38bdf8" strokeWidth="1" opacity="0.2" />
-    </svg>
-  );
-}
-
-function HoustonSkylineHeroDecor() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Sun glare — top right */}
-      <motion.div className="absolute top-8 right-12"
-        initial={{ opacity: 0, scale: 0.4 }}
-        whileInView={{ opacity: 0.88, scale: 1 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 1, delay: 0.25, ease: [0.25, 0, 0, 1] }}
-      >
-        <CityGlare size={76} />
-      </motion.div>
-
-      {/* Taxi — slides in from left, street level */}
-      <motion.div className="absolute bottom-20 left-8"
-        initial={{ opacity: 0, x: -80 }}
-        whileInView={{ opacity: 0.78, x: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 0.85, delay: 0.55, ease: [0.25, 0, 0, 1] }}
-      >
-        <CityTaxi size={96} />
-      </motion.div>
-
-      {/* Second taxi — right side, smaller */}
-      <motion.div className="absolute bottom-24 right-16"
-        initial={{ opacity: 0, x: 60 }}
-        whileInView={{ opacity: 0.42, x: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 0.85, delay: 0.72, ease: [0.25, 0, 0, 1] }}
-      >
-        <CityTaxi size={62} />
-      </motion.div>
-
-      {/* Glass skyscrapers — bottom */}
-      <motion.div className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 22 }}
-        whileInView={{ opacity: 0.7, y: 0 }}
-        viewport={{ once: true, amount: 0.01 }}
-        transition={{ duration: 1.0, delay: 0.12, ease: [0.25, 0, 0, 1] }}
-      >
-        <GlassSkyline />
-      </motion.div>
-    </div>
-  );
-}
 
 // ─── Dividers ──────────────────────────────────────────────────────────────────
 
@@ -1031,28 +555,6 @@ function SparkDivider({ color, strong = false }: { color: string; strong?: boole
         <polygon points="400,11 404,14 400,17 396,14" fill={color} opacity={strong ? 0.32 : 0.18} />
         <polygon points="420,8 426,14 420,20 414,14" fill={color} opacity={strong ? 0.55 : 0.32} />
         <line x1="450" y1="14" x2="800" y2="14" stroke={color} strokeWidth={strong ? 1.5 : 1} opacity={strong ? 0.28 : 0.15} />
-      </svg>
-    </div>
-  );
-}
-
-function SkylineDivider({ color, strong = false }: { color: string; strong?: boolean }) {
-  return (
-    <div className="w-full overflow-hidden" style={{ height: strong ? 28 : 18 }}>
-      <svg viewBox="0 0 800 28" preserveAspectRatio="none" className="w-full h-full" fill="none">
-        <line x1="0" y1="14" x2="355" y2="14" stroke={color} strokeWidth={strong ? 1.5 : 1} opacity={strong ? 0.28 : 0.15} />
-        {/* Sun rays */}
-        <line x1="400" y1="4" x2="400" y2="8" stroke={color} strokeWidth="1.5" opacity={strong ? 0.5 : 0.28} strokeLinecap="round" />
-        <line x1="400" y1="20" x2="400" y2="24" stroke={color} strokeWidth="1.5" opacity={strong ? 0.5 : 0.28} strokeLinecap="round" />
-        <line x1="388" y1="14" x2="384" y2="14" stroke={color} strokeWidth="1.5" opacity={strong ? 0.5 : 0.28} strokeLinecap="round" />
-        <line x1="412" y1="14" x2="416" y2="14" stroke={color} strokeWidth="1.5" opacity={strong ? 0.5 : 0.28} strokeLinecap="round" />
-        <line x1="391" y1="7" x2="394" y2="10" stroke={color} strokeWidth="1.5" opacity={strong ? 0.4 : 0.22} strokeLinecap="round" />
-        <line x1="409" y1="7" x2="406" y2="10" stroke={color} strokeWidth="1.5" opacity={strong ? 0.4 : 0.22} strokeLinecap="round" />
-        <line x1="391" y1="21" x2="394" y2="18" stroke={color} strokeWidth="1.5" opacity={strong ? 0.4 : 0.22} strokeLinecap="round" />
-        <line x1="409" y1="21" x2="406" y2="18" stroke={color} strokeWidth="1.5" opacity={strong ? 0.4 : 0.22} strokeLinecap="round" />
-        <circle cx="400" cy="14" r="6" fill={color} opacity={strong ? 0.55 : 0.32} />
-        <circle cx="400" cy="14" r="3.5" fill={color} opacity={strong ? 0.35 : 0.2} />
-        <line x1="445" y1="14" x2="800" y2="14" stroke={color} strokeWidth={strong ? 1.5 : 1} opacity={strong ? 0.28 : 0.15} />
       </svg>
     </div>
   );
@@ -1974,21 +1476,6 @@ function FrontierHeroDecor() {
 
 // ─── Wildlife / Nature ────────────────────────────────────────────────────────
 
-function WildLeaf({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <motion.svg className={className} style={style} viewBox="0 0 80 120" fill="none"
-      initial={{ scale: 0.2, rotate: -28, opacity: 0 }}
-      whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ type: "spring", stiffness: 180, damping: 14 }}
-    >
-      <path d="M40 110 C40 80 20 60 15 35 C10 15 30 5 40 10 C50 5 70 15 65 35 C60 60 40 80 40 110Z"
-        fill="#4A9B6B" opacity="0.65" />
-      <path d="M40 110 C40 80 40 40 40 10" stroke="#2d7a52" strokeWidth="1.5" opacity="0.45" />
-    </motion.svg>
-  );
-}
-
 function WildPawPrint({ size = 60 }: { size?: number }) {
   // 1 large central pad + 4 toe pads in proper arc
   const pads: [number, number, number][] = [
@@ -2384,12 +1871,11 @@ function DallasHeroDecor() {
 
 // ─── Shared divider router ─────────────────────────────────────────────────────
 
-type DividerType = "wave" | "rope" | "spark" | "skyline" | "sail";
+type DividerType = "wave" | "rope" | "spark" | "sail";
 
 function ThemeDivider({ color, type, strong = false }: { color: string; type: DividerType; strong?: boolean }) {
   if (type === "wave") return <WaveDivider color={color} strong={strong} />;
   if (type === "spark") return <SparkDivider color={color} strong={strong} />;
-  if (type === "skyline") return <SkylineDivider color={color} strong={strong} />;
   if (type === "sail") return <SailDivider color={color} strong={strong} />;
   return <RopeDivider color={color} strong={strong} />;
 }
@@ -2409,7 +1895,6 @@ interface ThemeVars {
   navBg: string;
   dropdownBg: string;
   sectionBg: string;
-  descTextColor: string;
   dividerType: DividerType;
 }
 
@@ -2425,7 +1910,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(45,212,191,0.05) 0%, transparent 65%)",
     navBg: "rgba(7,28,28,0.9)", dropdownBg: "rgba(7,28,28,0.97)",
     sectionBg: "linear-gradient(to bottom, #071c1c, #091e1e)",
-    descTextColor: "#b2f5ea", dividerType: "wave",
+    dividerType: "wave",
   },
   ranch: {
     accentColor: "#f59e0b", accentSecondary: "#6b7c5c",
@@ -2438,33 +1923,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(245,158,11,0.05) 0%, transparent 65%)",
     navBg: "rgba(22,10,2,0.9)", dropdownBg: "rgba(22,10,2,0.97)",
     sectionBg: "linear-gradient(to bottom, #1a0d03, #1e1005)",
-    descTextColor: "#fde68a", dividerType: "rope",
-  },
-  nightlife: {
-    accentColor: "#a855f7", accentSecondary: "#e8c547",
-    pageBg: "#0a0018",
-    heroBg: "linear-gradient(to bottom right, #1c0038, #0a0018)",
-    descBg: "linear-gradient(to bottom, #0a0018, #110025, #0a0018)",
-    galleryBg: "linear-gradient(to bottom, #0a0018 0%, #0e0022 50%, #0a0018 100%)",
-    heroOverlayGradient: "linear-gradient(to bottom, rgba(10,0,24,0.45) 0%, rgba(10,0,24,0.15) 35%, rgba(10,0,24,0.85) 78%, rgba(10,0,24,1) 100%)",
-    ambientGlow: "radial-gradient(ellipse 130% 55% at 50% 0%, rgba(168,85,247,0.14) 0%, transparent 55%)",
-    galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(168,85,247,0.07) 0%, transparent 65%)",
-    navBg: "rgba(10,0,25,0.92)", dropdownBg: "rgba(10,0,25,0.97)",
-    sectionBg: "linear-gradient(to bottom, #0a001a, #0c0022)",
-    descTextColor: "#d8b4fe", dividerType: "spark",
-  },
-  skyline: {
-    accentColor: "#38bdf8", accentSecondary: "#facc15",
-    pageBg: "#020c1a",
-    heroBg: "linear-gradient(to bottom right, #0e2d4a, #020c1a)",
-    descBg: "linear-gradient(to bottom, #020c1a, #041a2e, #020c1a)",
-    galleryBg: "linear-gradient(to bottom, #020c1a 0%, #041a2e 50%, #020c1a 100%)",
-    heroOverlayGradient: "linear-gradient(to bottom, rgba(2,12,26,0.3) 0%, rgba(2,12,26,0.08) 35%, rgba(2,12,26,0.82) 78%, rgba(2,12,26,1) 100%)",
-    ambientGlow: "radial-gradient(ellipse 130% 55% at 50% 0%, rgba(56,189,248,0.12) 0%, transparent 55%)",
-    galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(56,189,248,0.06) 0%, transparent 65%)",
-    navBg: "rgba(2,12,26,0.94)", dropdownBg: "rgba(2,12,26,0.97)",
-    sectionBg: "linear-gradient(to bottom, #020c1a, #041a2e)",
-    descTextColor: "#bae6fd", dividerType: "skyline",
+    dividerType: "rope",
   },
   western: {
     accentColor: "#4A8FE3", accentSecondary: "#DC2626",
@@ -2477,7 +1936,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(74,143,227,0.06) 0%, transparent 65%)",
     navBg: "rgba(1,9,20,0.94)", dropdownBg: "rgba(1,9,20,0.97)",
     sectionBg: "linear-gradient(to bottom, #010914, #081a36)",
-    descTextColor: "#bfdbfe", dividerType: "spark",
+    dividerType: "spark",
   },
   coastal: {
     accentColor: "#F4845F", accentSecondary: "#FACC15",
@@ -2490,7 +1949,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(244,132,95,0.05) 0%, transparent 65%)",
     navBg: "rgba(8,13,26,0.94)", dropdownBg: "rgba(8,13,26,0.97)",
     sectionBg: "linear-gradient(to bottom, #080d1a, #0c1525)",
-    descTextColor: "#fed7c5", dividerType: "wave",
+    dividerType: "wave",
   },
   romantic: {
     accentColor: "#E8729A", accentSecondary: "#F7C5D5",
@@ -2503,7 +1962,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(232,114,154,0.06) 0%, transparent 65%)",
     navBg: "rgba(18,3,9,0.94)", dropdownBg: "rgba(18,3,9,0.97)",
     sectionBg: "linear-gradient(to bottom, #120309, #180610)",
-    descTextColor: "#fbcfe8", dividerType: "wave",
+    dividerType: "wave",
   },
   engagement: {
     accentColor: "#E8C39E", accentSecondary: "#6BBF8E",
@@ -2516,7 +1975,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(232,195,158,0.05) 0%, transparent 65%)",
     navBg: "rgba(13,20,16,0.94)", dropdownBg: "rgba(13,20,16,0.97)",
     sectionBg: "linear-gradient(to bottom, #0d1410, #121b15)",
-    descTextColor: "#f2e3d0", dividerType: "sail",
+    dividerType: "sail",
   },
   frontier: {
     accentColor: "#A07850", accentSecondary: "#4A5E3A",
@@ -2529,7 +1988,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(160,120,80,0.04) 0%, transparent 65%)",
     navBg: "rgba(10,7,4,0.94)", dropdownBg: "rgba(10,7,4,0.97)",
     sectionBg: "linear-gradient(to bottom, #0a0704, #100c06)",
-    descTextColor: "#d6b896", dividerType: "rope",
+    dividerType: "rope",
   },
   wild: {
     accentColor: "#4A9B6B", accentSecondary: "#C97B2A",
@@ -2542,7 +2001,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(74,155,107,0.06) 0%, transparent 65%)",
     navBg: "rgba(3,10,5,0.94)", dropdownBg: "rgba(3,10,5,0.97)",
     sectionBg: "linear-gradient(to bottom, #030a05, #051208)",
-    descTextColor: "#bbf7d0", dividerType: "rope",
+    dividerType: "rope",
   },
   studio: {
     accentColor: "#94A3B8", accentSecondary: "#CBD5E1",
@@ -2555,7 +2014,7 @@ const CHAPTER_THEMES: Record<string, ThemeVars> = {
     galleryGlow: "radial-gradient(ellipse 80% 40% at 50% 60%, rgba(148,163,184,0.05) 0%, transparent 65%)",
     navBg: "rgba(3,3,6,0.94)", dropdownBg: "rgba(3,3,6,0.97)",
     sectionBg: "linear-gradient(to bottom, #030306, #07070e)",
-    descTextColor: "#e2e8f0", dividerType: "spark",
+    dividerType: "spark",
   },
 };
 
@@ -2904,35 +2363,6 @@ function ThemeFloorDecor({ decorative }: { decorative: string }) {
       </div>
     );
   }
-  if (decorative === "nightlife") {
-    return (
-      <div className="w-full pointer-events-none" style={{ height: 70 }}>
-        <svg className="w-full h-full" viewBox="0 0 800 70" fill="none" preserveAspectRatio="none">
-          <rect x="0" y="46" width="800" height="24" fill="#0a0018" opacity="0.55" />
-          <path d="M0 48 C80 43 160 52 240 47 C320 42 400 52 480 47 C560 42 640 52 720 47 C760 44 780 48 800 47"
-            stroke="#a855f7" strokeWidth="1" opacity="0.2" />
-          {[80, 200, 320, 440, 560, 680].map((x, i) => (
-            <rect key={i} x={x} y="55" width="44" height="4" fill="#a855f7" opacity="0.14" />
-          ))}
-          <circle cx="400" cy="52" r="10" stroke="#a855f7" strokeWidth="1" opacity="0.1" fill="none" />
-          <circle cx="400" cy="52" r="6" stroke="#a855f7" strokeWidth="0.8" opacity="0.08" fill="none" />
-        </svg>
-      </div>
-    );
-  }
-  if (decorative === "skyline") {
-    return (
-      <div className="w-full pointer-events-none" style={{ height: 65 }}>
-        <svg className="w-full h-full" viewBox="0 0 800 65" fill="none" preserveAspectRatio="none">
-          <rect x="0" y="38" width="800" height="27" fill="#020c1a" opacity="0.55" />
-          {[60, 180, 300, 420, 540, 660].map((x, i) => (
-            <rect key={i} x={x} y="46" width="52" height="4" fill="#38bdf8" opacity="0.14" />
-          ))}
-          <line x1="0" y1="38" x2="800" y2="38" stroke="#38bdf8" strokeWidth="1" opacity="0.22" />
-        </svg>
-      </div>
-    );
-  }
   if (decorative === "studio") {
     return (
       <div className="w-full pointer-events-none" style={{ height: 60 }}>
@@ -3100,8 +2530,6 @@ export default function ChapterPageClient({ chapter }: Props) {
 
   const isKeyWest = chapter.theme.decorative === "tropical";
   const isTexas = chapter.theme.decorative === "ranch";
-  const isNightlife = chapter.theme.decorative === "nightlife";
-  const isSkyline = chapter.theme.decorative === "skyline";
   const isWestern = chapter.theme.decorative === "western";
   const isCoastal = chapter.theme.decorative === "coastal";
   const isRomantic = chapter.theme.decorative === "romantic";
@@ -3203,8 +2631,6 @@ export default function ChapterPageClient({ chapter }: Props) {
           {showDecor && isKeyWest && <KeyWestHeroDecor />}
           {showDecor && isTexas && <WhartonHeroDecor />}
           {showDecor && isWestern && <DallasHeroDecor />}
-          {showDecor && isNightlife && <NightCityHeroDecor />}
-          {showDecor && isSkyline && <HoustonSkylineHeroDecor />}
           {showDecor && isCoastal && <CoastalHeroDecor />}
           {showDecor && isRomantic && <RomanticHeroDecor />}
           {showDecor && isEngagement && <EngagementHeroDecor />}
@@ -3361,44 +2787,6 @@ export default function ChapterPageClient({ chapter }: Props) {
             </div>
           </>
         )}
-        {descShow && isNightlife && (
-          <>
-            <div className="absolute top-6 left-6" style={{ opacity: 0.32 }}>
-              <CursorRepulsor maxPush={36} maxRotation={32}>
-                <NightSparkle size={38} color="#a855f7" />
-              </CursorRepulsor>
-            </div>
-            <div className="absolute top-8 right-8" style={{ opacity: 0.22 }}>
-              <CursorRepulsor maxPush={36} maxRotation={32}>
-                <NightSparkle size={26} color="#e8c547" />
-              </CursorRepulsor>
-            </div>
-            <div className="absolute bottom-10 right-10" style={{ opacity: 0.42 }}>
-              <CursorRepulsor maxPush={28} maxRotation={20}>
-                <NightChampagne size={38} />
-              </CursorRepulsor>
-            </div>
-          </>
-        )}
-        {descShow && isSkyline && (
-          <>
-            <div className="absolute top-6 left-5" style={{ opacity: 0.62 }}>
-              <CursorRepulsor maxPush={34} maxRotation={20}>
-                <CityGlare size={40} />
-              </CursorRepulsor>
-            </div>
-            <div className="absolute top-8 right-6" style={{ opacity: 0.55 }}>
-              <CursorRepulsor maxPush={28} maxRotation={16}>
-                <CityTaxi size={68} />
-              </CursorRepulsor>
-            </div>
-            <div className="absolute bottom-8 left-8" style={{ opacity: 0.38 }}>
-              <CursorRepulsor maxPush={24} maxRotation={14}>
-                <CityTaxi size={50} />
-              </CursorRepulsor>
-            </div>
-          </>
-        )}
         {descShow && isWestern && (
           <>
             <div className="absolute top-6 left-6" style={{ opacity: 0.28 }}>
@@ -3502,24 +2890,6 @@ export default function ChapterPageClient({ chapter }: Props) {
                 transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
               >
                 <KWHibiscus size={26} opacity={0.85} />
-              </motion.div>
-            ) : isNightlife ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.3, rotate: -90 }}
-                whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
-              >
-                <NightSparkle size={26} color="#a855f7" />
-              </motion.div>
-            ) : isSkyline ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.3, x: -20 }}
-                whileInView={{ opacity: 1, scale: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0, 0, 1] }}
-              >
-                <CityGlare size={28} />
               </motion.div>
             ) : isCoastal ? (
               <motion.div

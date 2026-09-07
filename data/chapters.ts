@@ -14,7 +14,7 @@ export interface ChapterTheme {
   bgClass: string;
   borderClass: string;
   textAccentClass: string;
-  decorative: "tropical" | "ranch" | "nightlife" | "skyline" | "western" | "coastal" | "romantic" | "engagement" | "frontier" | "wild" | "studio" | "none";
+  decorative: "tropical" | "ranch" | "western" | "coastal" | "romantic" | "engagement" | "frontier" | "wild" | "studio" | "none";
   tagline: string;
 }
 

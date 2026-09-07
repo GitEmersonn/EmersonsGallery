@@ -104,16 +104,6 @@ body {
   border-right: 1px solid rgba(245,230,200,0.2);
 }
 
-/* ─── Vignette ───────────────────────────────────── */
-.vignette::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(26,16,8,0.65) 100%);
-  border-radius: inherit;
-}
-
 /* ─── Smooth image fade-in ───────────────────────── */
 img { transition: opacity 0.35s ease; }
 
@@ -177,26 +167,7 @@ img { transition: opacity 0.35s ease; }
     scroll-behavior: auto !important;
   }
   .page-bg-gradient::before,
-  .shimmer-text,
-  .letter-float span {
+  .shimmer-text {
     animation: none !important;
-  }
-}
-
-/* ─── Chapter filmstrip ──────────────────────────── */
-/* A right-edge fade signals that the strip continues past the viewport. The
-   mask is dropped once the strip fits (md), where nothing is cut off. */
-.film-strip-scroller {
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 88%, transparent 100%);
-  mask-image: linear-gradient(to right, #000 0, #000 88%, transparent 100%);
-}
-.film-strip-scroller::-webkit-scrollbar {
-  display: none;
-}
-@media (min-width: 768px) {
-  .film-strip-scroller {
-    -webkit-mask-image: none;
-    mask-image: none;
   }
 }
