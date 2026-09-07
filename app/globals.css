@@ -36,7 +36,12 @@ body {
   background-color: var(--color-ink);
   color: var(--color-parchment);
   font-family: var(--font-playfair, Georgia, serif);
+  /* `hidden` makes body a horizontal scroll container, which iOS Safari then
+     competes with for touch gestures — vertical swipes get swallowed until the
+     browser resolves the conflict. `clip` suppresses the overflow without
+     creating a scroll container. `hidden` stays first as the fallback. */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ─── Film grain overlay ─────────────────────────── */
@@ -53,6 +58,15 @@ body {
   background-repeat: repeat;
   background-size: 160px 160px;
   opacity: 0.06;
+}
+
+/* A fixed full-screen layer is an extra composited surface the size of the
+   viewport, repainted as the page moves under it. On a phone the texture is
+   barely perceptible and the cost is not — so drop it on touch devices. */
+@media (pointer: coarse) {
+  .film-grain::before {
+    display: none;
+  }
 }
 
 /* ─── Polaroid shell ─────────────────────────────── */
@@ -166,5 +180,23 @@ img { transition: opacity 0.35s ease; }
   .shimmer-text,
   .letter-float span {
     animation: none !important;
+  }
+}
+
+/* ─── Chapter filmstrip ──────────────────────────── */
+/* A right-edge fade signals that the strip continues past the viewport. The
+   mask is dropped once the strip fits (md), where nothing is cut off. */
+.film-strip-scroller {
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 88%, transparent 100%);
+}
+.film-strip-scroller::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .film-strip-scroller {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }

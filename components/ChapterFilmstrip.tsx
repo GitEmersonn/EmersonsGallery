@@ -38,6 +38,30 @@ function SprocketRail() {
   );
 }
 
+/** Nudges outward on a loop to read as "there is more this way" */
+function SwipeArrow({ direction, lite }: { direction: "left" | "right"; lite: boolean }) {
+  const sign = direction === "left" ? -1 : 1;
+  return (
+    <motion.svg
+      width="11"
+      height="11"
+      viewBox="0 0 12 12"
+      fill="none"
+      animate={lite ? undefined : { x: [0, sign * 3, 0] }}
+      transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <path
+        d={direction === "left" ? "M7.5 1.5 L2.5 6 L7.5 10.5" : "M4.5 1.5 L9.5 6 L4.5 10.5"}
+        stroke={FILM_ORANGE}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.75"
+      />
+    </motion.svg>
+  );
+}
+
 function FilmFrame({
   chapter,
   index,
@@ -179,6 +203,24 @@ export default function ChapterFilmstrip({
 
   return (
     <div className="flex flex-col items-center gap-10 w-full">
+      {/* Only shown where a strip actually overflows — see the md:hidden below.
+          Sits above the strips so it reads before you reach for one. */}
+      <div className="md:hidden flex items-center gap-2 -mb-4" aria-hidden>
+        <SwipeArrow direction="left" lite={lite} />
+        <span
+          style={{
+            fontFamily: "var(--font-courier)",
+            fontSize: 9,
+            letterSpacing: "0.2em",
+            color: FILM_ORANGE,
+            opacity: 0.6,
+          }}
+        >
+          SWIPE FOR MORE CHAPTERS
+        </span>
+        <SwipeArrow direction="right" lite={lite} />
+      </div>
+
       {strips.map((strip, s) => (
         <motion.div
           key={s}
@@ -192,11 +234,17 @@ export default function ChapterFilmstrip({
             rotate: lite ? 0 : s % 2 === 0 ? -0.6 : 0.5,
           }}
         >
+          {/* A strip is ~2.4x a phone viewport, so it scrolls horizontally.
+              touch-action: pan-x is what keeps that from fighting the page:
+              it tells the browser this element only ever handles horizontal
+              pans, so a vertical swipe goes straight to the document instead
+              of being held while the browser guesses which axis you meant. */}
           <div
-            className="overflow-x-auto"
+            className="overflow-x-auto film-strip-scroller"
             style={{
               backgroundColor: FILM_BASE,
               boxShadow: "0 10px 30px rgba(0,0,0,0.45)",
+              touchAction: "pan-x",
             }}
           >
             <div style={{ minWidth: "fit-content" }}>
